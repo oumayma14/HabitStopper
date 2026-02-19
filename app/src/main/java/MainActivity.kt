@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
             HabitStopperTheme {
 
                 // ---------- STREAK STATE ----------
-                var streak by remember { mutableStateOf(0) }
+                var streak by remember { mutableStateOf(1) }
 
                 // ---------- DATE ----------
                 val today = LocalDate.now()
