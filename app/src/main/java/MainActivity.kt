@@ -38,6 +38,7 @@ import com.example.habitstopper.navigation.BottomBar
 import com.example.habitstopper.navigation.BottomNavItem
 import com.example.habitstopper.screens.HabitsScreen
 import com.example.habitstopper.screens.SettingsScreen
+import com.example.habitstopper.screens.ProfileScreen
 data class HabitCard(
     val name: String,
     val icon: ImageVector,
@@ -116,6 +117,7 @@ fun MainScreen() {
             composable(BottomNavItem.Home.route) { HomeScreen() }
             composable(BottomNavItem.Habits.route) { HabitsScreen() }
             composable(BottomNavItem.Settings.route) { SettingsScreen() }
+            composable(BottomNavItem.Profile.route) {ProfileScreen()}
         }
     }
 }
