@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalCafe
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.Whatshot
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -28,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -39,6 +41,9 @@ import com.example.habitstopper.navigation.BottomNavItem
 import com.example.habitstopper.screens.HabitsScreen
 import com.example.habitstopper.screens.SettingsScreen
 import com.example.habitstopper.screens.ProfileScreen
+import com.example.habitstopper.screens.LoginScreen
+import com.example.habitstopper.screens.SignUpScreen
+import androidx.navigation.compose.currentBackStackEntryAsState
 data class HabitCard(
     val name: String,
     val icon: ImageVector,
@@ -50,7 +55,7 @@ val habits = listOf(
     HabitCard("No Smoking", Icons.Filled.Whatshot, Color(0xFFFFEBEE)),
     HabitCard("No DoomScrolling", Icons.Filled.Smartphone, Color(0xFFE3F2FD))
 )
-
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HabitItemCard(
     habit: HabitCard,
@@ -111,9 +116,11 @@ fun MainScreen() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = BottomNavItem.Home.route,
+            startDestination = "login",
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable("login"){ LoginScreen(navController)}
+            composable("signup"){ SignUpScreen(navController)}
             composable(BottomNavItem.Home.route) { HomeScreen() }
             composable(BottomNavItem.Habits.route) { HabitsScreen() }
             composable(BottomNavItem.Settings.route) { SettingsScreen() }
@@ -121,7 +128,6 @@ fun MainScreen() {
         }
     }
 }
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen() {
