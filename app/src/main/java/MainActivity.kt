@@ -110,9 +110,21 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
+    val showBottomBar = currentRoute in listOf(
+        BottomNavItem.Home.route,
+        BottomNavItem.Profile.route,
+        BottomNavItem.Settings.route,
+        BottomNavItem.Habits.route
+    )
     Scaffold(
-        bottomBar = { BottomBar(navController) }
+        bottomBar = {
+            if (showBottomBar) {
+                BottomBar(navController)
+            }
+        }
     ) { innerPadding ->
         NavHost(
             navController = navController,
