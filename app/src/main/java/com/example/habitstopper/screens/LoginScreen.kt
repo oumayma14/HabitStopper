@@ -1,14 +1,11 @@
 package com.example.habitstopper.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -20,9 +17,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.habitstopper.navigation.BottomNavItem
-import androidx.compose.ui.graphics.Brush  //gradient bg color
-import androidx.compose.ui.text.input.ImeAction // better keyboard ux
-import androidx.compose.ui.text.input.KeyboardType // email/pwd keyboard typpes
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.example.habitstopper.R
+import androidx.compose.material3.OutlinedTextFieldDefaults
 
 
 @Composable
@@ -32,7 +31,8 @@ fun LoginScreen(navController: NavController) {
     var showPassword by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) } //loading state
     var errorText by remember { mutableStateOf<String?>(null) } //error msg for validation
-
+    val panelColor= Color(0xFF4F6D7A)
+    val pageBg= Color.White
 
     //client-side validation function
     fun validate(): Boolean {
@@ -58,170 +58,236 @@ fun LoginScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    listOf(
-                        MaterialTheme.colorScheme.surface,
-                        MaterialTheme.colorScheme.surfaceVariant
-                    )
-                )
+            .background(pageBg)
+    ){
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 52.dp),
+
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.logo_quitly),
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .height(180.dp)
+                    .fillMaxWidth(0.9f)
+                    .padding(horizontal = 24.dp),
+                contentScale = ContentScale.Fit
+
             )
-            .padding(20.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth()
-                .widthIn(max=440.dp), //max width for large screens
-            shape = RoundedCornerShape(28.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+        }
+        //bottom rounded panel
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.72f)
+                .align(Alignment.BottomCenter),
+            color = panelColor,
+            shape = RoundedCornerShape(topStart = 48.dp, topEnd = 48.dp),
+            tonalElevation = 0.dp,
+            shadowElevation = 12.dp
         ) {
             Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 28.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "HabitStopper",
-                    style = MaterialTheme.typography.headlineSmall
+                    text = "Already a user?",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White
                 )
-                Text(
-                    text = "Welcome back",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Text(
-                    text = "Log in to continue breaking bad habits.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                //error banner
-                if (errorText != null){
-                    Surface(
-                        color = MaterialTheme.colorScheme.errorContainer,
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = errorText!!,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(12.dp)
-                        )
-                    }
+                Spacer(Modifier.height(24.dp))
+                if (errorText != null) {
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        text = errorText!!,
+                        color = Color(0xFFFFD6D6),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
-
+                //input 1
                 OutlinedTextField(
                     value = email,
-                    onValueChange = {
-                        email = it
-                        if (errorText != null) errorText=null //clears error when typing
-                                    },
-                    label = { Text("Email") },
-                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+                    onValueChange = { email = it
+                        if (errorText != null) errorText = null
+                    },
+                    placeholder = { Text("Email") },
                     singleLine = true,
-                    enabled = !isLoading, // disabled input while loading
-                    //better keyboard config
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next
-                    ),
-                    //rounded text field
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFF3ECEC),
+                        unfocusedContainerColor = Color(0xFFF3ECEC),
+
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+
+                        cursorColor = panelColor,
+
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
                 )
 
+                Spacer(Modifier.height(16.dp))
+
+                //input 2
                 OutlinedTextField(
                     value = password,
-                    //clears error while typing
-                    onValueChange = { newValue ->
-                        password = newValue
+                    onValueChange = { password = it
                         if (errorText != null) errorText = null
-                                    },
-                    label = { Text("Password") },
-                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                    },
+                    placeholder = { Text("Password") },
                     singleLine = true,
-                    enabled = !isLoading, //disable input while loading
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Done
-                    ),
                     visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        IconButton(
-                            onClick = {showPassword = !showPassword},
-                            enabled = !isLoading //disabled during loading
-                        ) {
+                        IconButton(onClick = { showPassword = !showPassword }) {
                             Icon(
-                                imageVector =
-                                    if (showPassword)
-                                        Icons.Default.VisibilityOff
-                                    else
-                                        Icons.Default.Visibility,
-                                contentDescription = null
+                                imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = null,
+                                tint = Color(0xFF2F2F2F)
                             )
                         }
                     },
-                    shape = RoundedCornerShape(16.dp), //rounded text field shape
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ){
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFF3ECEC),
+                        unfocusedContainerColor = Color(0xFFF3ECEC),
 
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+
+                        cursorColor = panelColor,
+
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black
+                    )
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                //forget password placeholder
+                Box(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = "Forgot password?",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable (enabled = !isLoading){
-                            //future route
-                        }
+                        color = Color.White.copy(alpha = 0.85f),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .clickable(enabled = !isLoading) {
+                                // later: navController.navigate("forgot")
+                            }
                     )
                 }
+                Spacer(Modifier.height(16.dp))
 
+                //login button
                 Button(
                     onClick = {
                         if (!validate()) return@Button
-                        isLoading = true // show loading state
-
                         navController.navigate(BottomNavItem.Home.route) {
                             popUpTo("login") { inclusive = true }
                         }
                     },
-                    enabled = !isLoading, //prevent double clicks
+                    enabled = !isLoading,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFE7E7E7),
+                        contentColor = Color(0xFF2A2A2A)
+                    ),
+                    shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(54.dp),
-                    shape = RoundedCornerShape(16.dp)
+                        .width(120.dp)
+                        .height(42.dp)
                 ) {
-                    if (isLoading){
-                        //loading indicator inside button
+                    if (isLoading) {
                         CircularProgressIndicator(
                             strokeWidth = 2.dp,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(18.dp),
+                            color = Color(0xFF2A2A2A)
                         )
-                        Spacer(Modifier.width(12.dp))
-                        Text("Logging in ..")
-                    }
-                    else {
-                        Text("Log in")
+                    } else {
+                        Text("Log In")
                     }
                 }
+                Spacer(Modifier.height(18.dp))
 
-                HorizontalDivider() //visual separation
-
+                //placeholder or
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 18.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("No account? ")
+                    HorizontalDivider(
+                        modifier = Modifier.weight(1f),
+                        thickness = 1.dp,
+                        color = Color.White.copy(alpha = 0.35f)
+                    )
                     Text(
-                        text = "Sign up",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.clickable { navController.navigate("signup") }
+                        text = "Or",
+                        modifier = Modifier.padding(horizontal = 12.dp),
+                        color = Color.White.copy(alpha = 0.9f)
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.weight(1f),
+                        thickness = 1.dp,
+                        color = Color.White.copy(alpha = 0.35f)
                     )
                 }
+                Spacer(Modifier.height(16.dp))
+                // gpogle button
+                Button(
+                    onClick = { /* later */ },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFF3ECEC),
+                        contentColor = Color(0xFF1F1F1F)
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 4.dp,
+                        pressedElevation = 2.dp
+                    )
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.google),
+                            contentDescription = "Google",
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text("Sign in with Google")
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+
+                //sign up text
+                Text(
+                    text = "New to Quitly?",
+                    color = Color.White.copy(alpha = 0.9f),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Text(
+                    text = "Create an account",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.clickable {
+                        navController.navigate("signup")
+                    }
+                )
             }
         }
     }
+
 }
