@@ -61,7 +61,7 @@ fun SignUpScreen(navController: NavController) {
     fun validate(): Boolean {
         val trimmedEmail = email.trim()
         if(trimmedEmail.isEmpty()){
-            errorText = "Email is required"
+            errorText = "Email is required!"
             return false
         }
 
