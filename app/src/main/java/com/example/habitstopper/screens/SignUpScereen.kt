@@ -42,9 +42,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.habitstopper.R
-import com.example.habitstopper.navigation.BottomNavItem
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import com.example.habitstopper.com.example.habitstopper.auth.AuthViewModel
 
 @Composable
 fun SignUpScreen(navController: NavController) {
@@ -55,7 +55,7 @@ fun SignUpScreen(navController: NavController) {
     var confirmPassword by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) } //loading state
-
+    val viewModel: AuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 
 
     fun validate(): Boolean {
@@ -104,6 +104,14 @@ fun SignUpScreen(navController: NavController) {
             if (errorText != null) {
                 Text(
                     text = errorText!!,
+                    color = Color(0xFFFFD6D6),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(Modifier.height(10.dp))
+            }
+            viewModel.errorMessage?.let { firebaseError ->
+                Text(
+                    text = firebaseError,
                     color = Color(0xFFFFD6D6),
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -201,9 +209,11 @@ fun SignUpScreen(navController: NavController) {
             Button(
                 onClick = {
                     if (!validate()) return@Button
-                    // later: signup logic
-                    navController.navigate(BottomNavItem.Home.route) {
-                        popUpTo("login") { inclusive = true }
+
+                    viewModel.signUp(email, password) {
+                        navController.navigate("login") {
+                            popUpTo("signup") { inclusive = true }
+                        }
                     }
                 },
                 enabled = !isLoading,
@@ -253,7 +263,15 @@ fun SignUpScreen(navController: NavController) {
             Spacer(Modifier.height(16.dp))
 
             Button(
-                onClick = { /* later */ },
+                onClick = {
+                    if (!validate()) return@Button
+
+                    viewModel.login(email,password){
+                        navController.navigate("login") {
+                            popUpTo("signup") { inclusive = true }
+                        }}
+                          },
+
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = Color(0xFF1F1F1F)

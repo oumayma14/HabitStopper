@@ -22,6 +22,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.example.habitstopper.R
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import com.example.habitstopper.com.example.habitstopper.auth.AuthViewModel
+
 
 
 @Composable
@@ -33,6 +35,7 @@ fun LoginScreen(navController: NavController) {
     var errorText by remember { mutableStateOf<String?>(null) } //error msg for validation
     val panelColor= Color(0xFF4F6D7A)
     val pageBg= Color.White
+    val viewModel : AuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 
     //client-side validation function
     fun validate(): Boolean {
@@ -190,9 +193,11 @@ fun LoginScreen(navController: NavController) {
                 Button(
                     onClick = {
                         if (!validate()) return@Button
+
+                        viewModel.login(email,password){
                         navController.navigate(BottomNavItem.Home.route) {
                             popUpTo("login") { inclusive = true }
-                        }
+                        }}
                     },
                     enabled = !isLoading,
                     colors = ButtonDefaults.buttonColors(

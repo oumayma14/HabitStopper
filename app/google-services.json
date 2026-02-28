@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "130593368712",
+    "project_id": "habitstopper",
+    "storage_bucket": "habitstopper.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:130593368712:android:4b3ba6c4b6b3eda77c0d3d",
+        "android_client_info": {
+          "package_name": "com.example.habitstopper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs8B4k9eDv0BTRgAJgTCNimQRSbqetNCM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
