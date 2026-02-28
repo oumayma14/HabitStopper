@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.LocalCafe
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -133,7 +134,7 @@ fun MainScreen() {
         ) {
             composable("login"){ LoginScreen(navController)}
             composable("signup"){ SignUpScreen(navController)}
-            composable(BottomNavItem.Home.route) { HomeScreen() }
+            composable(BottomNavItem.Home.route) { HomeScreen(navController) }
             composable(BottomNavItem.Habits.route) { HabitsScreen() }
             composable(BottomNavItem.Settings.route) { SettingsScreen() }
             composable(BottomNavItem.Profile.route) {ProfileScreen()}
@@ -142,7 +143,7 @@ fun MainScreen() {
 }
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     val checkedStates = remember { mutableStateMapOf<String, Boolean>() }
     var streak by remember { mutableStateOf(0) }
 
@@ -150,6 +151,8 @@ fun HomeScreen() {
     val dayName = today.format(DateTimeFormatter.ofPattern("EEEE"))
     val dayNumber = today.dayOfMonth
     val year = today.year
+
+    val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
 
     fun getDaySuffix(day: Int): String {
         return if (day in 11..13) {
@@ -204,6 +207,27 @@ fun HomeScreen() {
         }
 
         Spacer(modifier = Modifier.height(40.dp))
+
+        Button(
+            onClick = {
+                auth.signOut()
+                navController.navigate("login"){
+                    popUpTo(0){inclusive = true}
+                }
+            },
+
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFE57373),
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(45.dp)
+        ) {
+            Text("Sign out")
+        }
+        Spacer(modifier = Modifier.height(20.dp))
 
         Text(
             text = "What did you resist today ?",
