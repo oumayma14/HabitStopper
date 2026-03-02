@@ -1,4 +1,4 @@
-package com.example.habitstopper.com.example.habitstopper
+package com.example.habitstopper
 
 import android.content.Context
 import android.content.Intent
@@ -21,8 +21,10 @@ class GoogleAuthClient (private val context: Context){
 
     }
 
-    fun getSignInIntent(): Intent = googleSignInClient.signInIntent
-
+    fun getSignInIntent(): Intent {
+        googleSignInClient.signOut()
+        return googleSignInClient.signInIntent
+    }
     suspend fun signInWithIntent(intent: Intent): Result<Unit>{
         return  try {
             val account = GoogleSignIn.getSignedInAccountFromIntent(intent).result

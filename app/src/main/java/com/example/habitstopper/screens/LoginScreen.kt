@@ -26,8 +26,9 @@ import androidx.compose.ui.res.painterResource
 import com.example.habitstopper.R
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.platform.LocalContext
-import com.example.habitstopper.com.example.habitstopper.GoogleAuthClient
-import com.example.habitstopper.com.example.habitstopper.auth.AuthViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.habitstopper.GoogleAuthClient
+import com.example.habitstopper.auth.AuthViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -35,11 +36,12 @@ fun LoginScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) } //loading state
     var errorText by remember { mutableStateOf<String?>(null) } //error msg for validation
     val panelColor= Color(0xFF4F6D7A)
     val pageBg= Color.White
-    val viewModel : AuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    val viewModel : AuthViewModel = viewModel()
+    val isLoading = viewModel.isLoading //loading state
+
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -53,9 +55,7 @@ fun LoginScreen(navController: NavController) {
             result.data?.let {
                 intent ->
                 scope.launch {
-                    isLoading = true
                     val signInResult = googleAuthClient.signInWithIntent(intent)
-                    isLoading = false
                     if (signInResult.isSuccess) {
                         navController.navigate(BottomNavItem.Home.route) {
                             popUpTo("login") { inclusive = true }
@@ -143,6 +143,15 @@ fun LoginScreen(navController: NavController) {
                         color = Color(0xFFFFD6D6),
                         style = MaterialTheme.typography.bodyMedium
                     )
+                }
+
+                viewModel.errorMessage?.let { firebaseError ->
+                    Text(
+                        text = firebaseError,
+                        color = Color(0xFFFFD6D6),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(Modifier.height(10.dp))
                 }
                 //input 1
                 OutlinedTextField(

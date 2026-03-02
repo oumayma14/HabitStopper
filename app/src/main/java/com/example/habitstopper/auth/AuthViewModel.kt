@@ -1,11 +1,12 @@
-package com.example.habitstopper.com.example.habitstopper.auth
+package com.example.habitstopper.auth
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+
 
 class AuthViewModel(
     private val repository: AuthRepository = AuthRepository()

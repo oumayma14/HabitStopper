@@ -44,7 +44,15 @@ import androidx.navigation.NavController
 import com.example.habitstopper.R
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import com.example.habitstopper.com.example.habitstopper.auth.AuthViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.habitstopper.GoogleAuthClient
+import com.example.habitstopper.auth.AuthViewModel
 
 @Composable
 fun SignUpScreen(navController: NavController) {
@@ -54,8 +62,29 @@ fun SignUpScreen(navController: NavController) {
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) } //loading state
-    val viewModel: AuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    val viewModel : AuthViewModel = viewModel()
+    val isLoading = viewModel.isLoading //loading state
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val googleAuthClient = remember { GoogleAuthClient(context) }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.let { intent ->
+                scope.launch {
+                    val signInResult = googleAuthClient.signInWithIntent(intent)
+                    if (signInResult.isSuccess) {
+                        navController.navigate("home") {
+                            popUpTo("signup") { inclusive = true }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 
     fun validate(): Boolean {
@@ -209,7 +238,6 @@ fun SignUpScreen(navController: NavController) {
             Button(
                 onClick = {
                     if (!validate()) return@Button
-
                     viewModel.signUp(email, password) {
                         navController.navigate("login") {
                             popUpTo("signup") { inclusive = true }
@@ -264,13 +292,8 @@ fun SignUpScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    if (!validate()) return@Button
-
-                    viewModel.login(email,password){
-                        navController.navigate("login") {
-                            popUpTo("signup") { inclusive = true }
-                        }}
-                          },
+                    launcher.launch(googleAuthClient.getSignInIntent())
+                },
 
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,

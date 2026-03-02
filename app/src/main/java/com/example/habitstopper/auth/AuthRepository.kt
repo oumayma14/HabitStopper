@@ -1,4 +1,4 @@
-package com.example.habitstopper.com.example.habitstopper.auth
+package com.example.habitstopper.auth
 
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
