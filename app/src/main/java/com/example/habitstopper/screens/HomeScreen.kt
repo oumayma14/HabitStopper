@@ -15,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.habitstopper.HabitCard
 import com.example.habitstopper.HabitItemCard
+import com.example.habitstopper.UserViewModel
 import com.example.habitstopper.habits
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -28,6 +30,12 @@ import java.time.format.DateTimeFormatter
 fun HomeScreen(navController: NavController) {
     val checkedStates = remember { mutableStateMapOf<String, Boolean>() }
     var streak by remember { mutableStateOf(0) }
+
+    val userViewModel: UserViewModel = viewModel()
+    LaunchedEffect(Unit) {
+        userViewModel.loadUserProfile()
+    }
+    val userProfile = userViewModel.userProfile
 
     val today = LocalDate.now()
     val dayName = today.format(DateTimeFormatter.ofPattern("EEEE"))
@@ -59,6 +67,10 @@ fun HomeScreen(navController: NavController) {
             verticalAlignment = Alignment.Top
         ) {
             Column {
+                Text(
+                    text = if (userProfile != null) "Hey, ${userProfile.displayName}!" else "Hey!",
+                    style = MaterialTheme.typography.headlineSmall
+                )
                 Text(dayName, style = MaterialTheme.typography.headlineSmall)
                 Text(formattedSecondLine, style = MaterialTheme.typography.headlineSmall)
             }

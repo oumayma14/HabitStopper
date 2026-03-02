@@ -18,12 +18,12 @@ class AuthViewModel(
     var isLoading by mutableStateOf(false)
         private set
 
-    fun signUp(email: String, password: String, onSuccess: () -> Unit) {
+    fun signUp(email: String, password: String, displayName: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
                 isLoading = true
                 errorMessage = null
-                repository.signUp(email, password)
+                repository.signUp(email, password, displayName)
                 onSuccess()
             } catch (e: Exception) {
                 errorMessage = e.message ?: "Sign up failed"

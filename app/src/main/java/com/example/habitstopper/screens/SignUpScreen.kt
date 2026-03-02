@@ -61,6 +61,7 @@ fun SignUpScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var displayName by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
     val viewModel : AuthViewModel = viewModel()
     val isLoading = viewModel.isLoading //loading state
@@ -107,6 +108,10 @@ fun SignUpScreen(navController: NavController) {
             errorText = "Passwords do not match"
             return false
         }
+        if (displayName.trim().isEmpty()) {
+            errorText = "Name is required!"
+            return false
+        }
         errorText = null
         return true
     }
@@ -147,6 +152,27 @@ fun SignUpScreen(navController: NavController) {
                 Spacer(Modifier.height(10.dp))
             }
             val fieldBg = Color(0xFFF3ECEC)
+            OutlinedTextField(
+                value = displayName,
+                onValueChange = {
+                    displayName = it
+                    if (errorText != null) errorText = null
+                },
+                placeholder = { Text("Your name") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(0.92f),
+                shape = RoundedCornerShape(10.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = fieldBg,
+                    unfocusedContainerColor = fieldBg,
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    cursorColor = panelColor,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black
+                )
+            )
+            Spacer(Modifier.height(14.dp))
             OutlinedTextField(
                 value = email,
                 onValueChange = {
@@ -238,7 +264,7 @@ fun SignUpScreen(navController: NavController) {
             Button(
                 onClick = {
                     if (!validate()) return@Button
-                    viewModel.signUp(email, password) {
+                    viewModel.signUp(email, password, displayName) {
                         navController.navigate("login") {
                             popUpTo("signup") { inclusive = true }
                         }
