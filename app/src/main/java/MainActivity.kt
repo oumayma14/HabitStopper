@@ -6,37 +6,28 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalCafe
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.Whatshot
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.habitstopper.ui.theme.HabitStopperTheme
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import com.example.habitstopper.navigation.BottomBar
 import com.example.habitstopper.navigation.BottomNavItem
 import com.example.habitstopper.screens.HabitsScreen
@@ -45,6 +36,7 @@ import com.example.habitstopper.screens.ProfileScreen
 import com.example.habitstopper.screens.LoginScreen
 import com.example.habitstopper.screens.SignUpScreen
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.habitstopper.screens.HomeScreen
 data class HabitCard(
     val name: String,
     val icon: ImageVector,
@@ -138,132 +130,6 @@ fun MainScreen() {
             composable(BottomNavItem.Habits.route) { HabitsScreen() }
             composable(BottomNavItem.Settings.route) { SettingsScreen() }
             composable(BottomNavItem.Profile.route) {ProfileScreen()}
-        }
-    }
-}
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun HomeScreen(navController: NavController) {
-    val checkedStates = remember { mutableStateMapOf<String, Boolean>() }
-    var streak by remember { mutableStateOf(0) }
-
-    val today = LocalDate.now()
-    val dayName = today.format(DateTimeFormatter.ofPattern("EEEE"))
-    val dayNumber = today.dayOfMonth
-    val year = today.year
-
-    val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
-
-    fun getDaySuffix(day: Int): String {
-        return if (day in 11..13) {
-            "th"
-        } else {
-            when (day % 10) {
-                1 -> "st"
-                2 -> "nd"
-                3 -> "rd"
-                else -> "th"
-            }
-        }
-    }
-
-    val formattedSecondLine = "$dayNumber${getDaySuffix(dayNumber)}, $year"
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 40.dp)
-    ) {
-        // HEADER (DATE + STREAK)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
-        ) {
-            Column {
-                Text(dayName, style = MaterialTheme.typography.headlineSmall)
-                Text(formattedSecondLine, style = MaterialTheme.typography.headlineSmall)
-            }
-
-            val streakColor =
-                if (streak > 0) Color(0xFFFF9800) else MaterialTheme.colorScheme.onBackground
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { streak++ }
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Whatshot,
-                    contentDescription = "Streak",
-                    modifier = Modifier.size(50.dp),
-                    tint = streakColor
-                )
-                Text(
-                    text = streak.toString(),
-                    modifier = Modifier.padding(start = 6.dp),
-                    color = streakColor
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        Button(
-            onClick = {
-                auth.signOut()
-                navController.navigate("login"){
-                    popUpTo(0){inclusive = true}
-                }
-            },
-
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFE57373),
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(10.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(45.dp)
-        ) {
-            Text("Sign out")
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Text(
-            text = "What did you resist today ?",
-            style = MaterialTheme.typography.titleLarge
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // + ADD HABIT BUTTON (STATIC FOR NOW)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            Text(
-                text = "+ New Habit to Break",
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFEAEAEA))
-                    .clickable {}
-                    .padding(vertical = 10.dp, horizontal = 16.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // HABIT CARDS
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            habits.forEach { habit ->
-                val checked = checkedStates[habit.name] ?: false
-                HabitItemCard(
-                    habit = habit,
-                    checked = checked,
-                    onCheckedChange = { checkedStates[habit.name] = it }
-                )
-            }
         }
     }
 }
