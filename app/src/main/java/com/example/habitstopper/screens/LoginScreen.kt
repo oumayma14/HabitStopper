@@ -1,5 +1,8 @@
 package com.example.habitstopper.screens
 
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,9 +25,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.example.habitstopper.R
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.ui.platform.LocalContext
+import com.example.habitstopper.com.example.habitstopper.GoogleAuthClient
 import com.example.habitstopper.com.example.habitstopper.auth.AuthViewModel
-
-
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -36,6 +40,34 @@ fun LoginScreen(navController: NavController) {
     val panelColor= Color(0xFF4F6D7A)
     val pageBg= Color.White
     val viewModel : AuthViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val googleAuthClient = remember { GoogleAuthClient(context) }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        result ->
+        if (result.resultCode == Activity.RESULT_OK){
+            result.data?.let {
+                intent ->
+                scope.launch {
+                    isLoading = true
+                    val signInResult = googleAuthClient.signInWithIntent(intent)
+                    isLoading = false
+                    if (signInResult.isSuccess) {
+                        navController.navigate(BottomNavItem.Home.route) {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    } else {
+                        errorText = "Google Sign-In failed. Try again."
+                    }
+                }
+            }
+
+        }
+    }
 
     //client-side validation function
     fun validate(): Boolean {
@@ -245,9 +277,10 @@ fun LoginScreen(navController: NavController) {
                     )
                 }
                 Spacer(Modifier.height(16.dp))
-                // gpogle button
+                // google button
                 Button(
-                    onClick = { /* later */ },
+                    onClick = { launcher.launch(googleAuthClient.getSignInIntent()) },
+                    enabled = !isLoading,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFF3ECEC),
                         contentColor = Color(0xFF1F1F1F)
