@@ -47,8 +47,10 @@ class HabitRepository {
         val wasCheckedYesterday = currentHabit.lastCheckedDate ==
                 LocalDate.now().minusDays(1).toString()
 
+        // if already checked today → unchecking, so decrease streak
+        // if not checked → checking, so increase or start streak
         val newStreak = when {
-            currentHabit.checkedToday -> currentHabit.streak
+            currentHabit.checkedToday -> (currentHabit.streak - 1).coerceAtLeast(0)
             wasCheckedYesterday -> currentHabit.streak + 1
             else -> 1
         }
