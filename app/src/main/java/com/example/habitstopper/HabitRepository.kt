@@ -19,8 +19,25 @@ class HabitRepository {
     // fetch all habits for the current user
     suspend fun getHabits(): List<Habit> {
         val snapshot = habitsCollection.get().await()
-        return snapshot.documents.mapNotNull { doc ->
-            doc.toObject(Habit::class.java)?.copy(id = doc.id)
+        val today = LocalDate.now().toString()
+
+        val habits = snapshot.documents.mapNotNull {
+            doc -> doc.toObject(Habit::class.java)?.copy(id = doc.id)
+        }
+
+        habits.forEach {
+            habit ->
+            if (habit.checkedToday && habit.lastCheckedDate != today) {
+                habitsCollection.document(habit.id).update("checkedToday", false).await()
+            }
+        }
+
+        return habits.map {
+            habit -> if (habit.checkedToday && habit.lastCheckedDate != today){
+                habit.copy(checkedToday = false)
+            }else{
+                habit
+            }
         }
     }
 
