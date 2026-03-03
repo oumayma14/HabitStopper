@@ -11,17 +11,27 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
-// a list of colors the user can pick from for their habit card
 val habitColors = listOf(
-    "#FFF3E0", // orange tint
-    "#FFEBEE", // red tint
-    "#E3F2FD", // blue tint
-    "#E8F5E9", // green tint
-    "#F3E5F5", // purple tint
-    "#FFF9C4"  // yellow tint
+    "#FF4757", // vivid red
+    "#FF6B35", // vivid orange
+    "#FFD700", // vivid yellow
+    "#2ED573", // vivid green
+    "#1E90FF", // vivid blue
+    "#A855F7", // vivid purple
+    "#FF3CAC", // vivid pink
+    "#00D4AA"  // vivid teal
+)
+
+val habitEmojis = listOf(
+    "🚬", "🍬", "🍷", "📱", "🎮",
+    "☕", "🍔", "😤", "💸", "🌙",
+    "🍕", "🧁", "🥤", "😴", "🛒"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,58 +42,184 @@ fun AddHabitSheet(
 ) {
     var habitName by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf(habitColors[0]) }
+    var selectedEmoji by remember { mutableStateOf(habitEmojis[0]) }
     var errorText by remember { mutableStateOf<String?>(null) }
 
-    // ModalBottomSheet slides up from the bottom of the screen
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF1A1A2E),
+        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+        dragHandle = {}
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 16.dp),
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "New Habit to Break",
-                style = MaterialTheme.typography.titleLarge
-            )
-
+            // colorful drag handle
             Spacer(Modifier.height(16.dp))
 
-            // error message if name is empty
-            if (errorText != null) {
+            Box(
+                modifier = Modifier
+                    .width(48.dp)
+                    .height(5.dp)
+                    .clip(CircleShape)
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFFFF4757), Color(0xFFA855F7))
+                        )
+                    )
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            // bold title with gradient text effect
+            Text(
+                text = "💥 Break a Habit",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White
+            )
+            Text(
+                text = "What are you quitting today?",
+                fontSize = 13.sp,
+                color = Color.White.copy(alpha = 0.45f)
+            )
+
+            Spacer(Modifier.height(28.dp))
+
+            // INPUT FIELD with colored left border
+            val selectedColorParsed = remember(selectedColor) {
+                try { Color(android.graphics.Color.parseColor(selectedColor)) }
+                catch (e: Exception) { Color(0xFFFF4757) }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.White.copy(alpha = 0.07f))
+                    .border(
+                        width = 2.dp,
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(selectedColorParsed, Color(0xFFA855F7))
+                        ),
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    text = errorText!!,
-                    color = Color.Red,
-                    style = MaterialTheme.typography.bodySmall
+                    text = selectedEmoji,
+                    fontSize = 30.sp,
+                    modifier = Modifier.padding(end = 12.dp)
                 )
+                TextField(
+                    value = habitName,
+                    onValueChange = {
+                        habitName = it
+                        if (errorText != null) errorText = null
+                    },
+                    placeholder = {
+                        Text(
+                            "e.g. No Sugar, No Smoking...",
+                            color = Color.White.copy(alpha = 0.25f),
+                            fontSize = 14.sp
+                        )
+                    },
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = selectedColorParsed
+                    ),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            if (errorText != null) {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = "⚠️ $errorText",
+                    color = Color(0xFFFF4757),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            Spacer(Modifier.height(28.dp))
+
+            // EMOJI PICKER
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SectionLabel("Choose Emoji")
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            habitEmojis.chunked(5).forEach { row ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    row.forEach { emoji ->
+                        val isSelected = selectedEmoji == emoji
+                        Box(
+                            modifier = Modifier
+                                .size(54.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(
+                                    if (isSelected)
+                                        Brush.linearGradient(
+                                            colors = listOf(
+                                                selectedColorParsed.copy(alpha = 0.4f),
+                                                Color(0xFFA855F7).copy(alpha = 0.4f)
+                                            )
+                                        )
+                                    else
+                                        Brush.linearGradient(
+                                            colors = listOf(
+                                                Color.White.copy(alpha = 0.05f),
+                                                Color.White.copy(alpha = 0.05f)
+                                            )
+                                        )
+                                )
+                                .then(
+                                    if (isSelected) Modifier.border(
+                                        2.dp,
+                                        Brush.linearGradient(
+                                            colors = listOf(selectedColorParsed, Color(0xFFA855F7))
+                                        ),
+                                        RoundedCornerShape(14.dp)
+                                    ) else Modifier
+                                )
+                                .clickable { selectedEmoji = emoji },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(emoji, fontSize = 26.sp)
+                        }
+                    }
+                }
                 Spacer(Modifier.height(8.dp))
             }
 
-            // habit name input
-            OutlinedTextField(
-                value = habitName,
-                onValueChange = {
-                    habitName = it
-                    if (errorText != null) errorText = null
-                },
-                placeholder = { Text("e.g. No Sugar, No Smoking...") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp)
-            )
+            Spacer(Modifier.height(24.dp))
 
-            Spacer(Modifier.height(16.dp))
+            // COLOR PICKER
+            SectionLabel("Choose Color")
+            Spacer(Modifier.height(12.dp))
 
-            Text(
-                text = "Pick a color",
-                style = MaterialTheme.typography.titleSmall
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            // color picker row
             Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 habitColors.forEach { colorHex ->
@@ -95,35 +231,72 @@ fun AddHabitSheet(
                             .size(40.dp)
                             .clip(CircleShape)
                             .background(color)
-                            // show border if this color is selected
                             .then(
-                                if (isSelected) Modifier.border(3.dp, Color.DarkGray, CircleShape)
-                                else Modifier
+                                if (isSelected) Modifier.border(3.dp, Color.White, CircleShape)
+                                else Modifier.border(
+                                    1.5.dp, Color.White.copy(alpha = 0.1f), CircleShape
+                                )
                             )
-                            .clickable { selectedColor = colorHex }
-                    )
+                            .clickable { selectedColor = colorHex },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isSelected) {
+                            Text(
+                                "✓",
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+                    }
                 }
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(32.dp))
 
-            Button(
-                onClick = {
-                    if (habitName.trim().isEmpty()) {
-                        errorText = "Please enter a habit name"
-                        return@Button
-                    }
-                    // "default" is a placeholder for iconName
-                    // we'll add icon picking later
-                    onAdd(habitName.trim(), "default", selectedColor)
-                },
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                shape = RoundedCornerShape(10.dp)
+            // GRADIENT ADD BUTTON
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(
+                                selectedColorParsed,
+                                Color(0xFFA855F7)
+                            )
+                        )
+                    )
+                    .clickable {
+                        if (habitName.trim().isEmpty()) {
+                            errorText = "Please enter a habit name"
+                            return@clickable
+                        }
+                        onAdd(habitName.trim(), selectedEmoji, selectedColor)
+                    },
+                contentAlignment = Alignment.Center
             ) {
-                Text("Add Habit")
+                Text(
+                    text = "Add Habit 🚀",
+                    color = Color.White,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 17.sp,
+                    letterSpacing = 0.5.sp
+                )
             }
-
-            Spacer(Modifier.height(16.dp))
         }
     }
+}
+
+@Composable
+fun SectionLabel(text: String) {
+    Text(
+        text = text.uppercase(),
+        fontSize = 11.sp,
+        fontWeight = FontWeight.ExtraBold,
+        color = Color.White.copy(alpha = 0.35f),
+        letterSpacing = 2.sp,
+        modifier = Modifier.fillMaxWidth()
+    )
 }
