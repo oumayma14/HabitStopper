@@ -37,6 +37,12 @@ import com.example.habitstopper.screens.LoginScreen
 import com.example.habitstopper.screens.SignUpScreen
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.habitstopper.screens.HomeScreen
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+
+
 data class HabitCard(
     val name: String,
     val icon: ImageVector,
@@ -51,14 +57,24 @@ val habits = listOf(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HabitItemCard(
-    habit: HabitCard,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    habit: Habit,
+    onCheckedChange: () -> Unit,
+    onDelete: () -> Unit
 ) {
+    // convert the hex color string back to a Compose Color
+    // remember: we stored color as "#FFF3E0" in Firestore
+    val cardColor = remember(habit.colorHex) {
+        try {
+            Color(android.graphics.Color.parseColor(habit.colorHex))
+        } catch (e: Exception) {
+            Color(0xFFEEEEEE) // fallback color if parsing fails
+        }
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = habit.cardColor),
+        colors = CardDefaults.cardColors(containerColor = cardColor),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
@@ -69,18 +85,33 @@ fun HabitItemCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = habit.icon,
-                    contentDescription = habit.name
-                )
                 Spacer(modifier = Modifier.width(12.dp))
-                Text(habit.name)
+                Column {
+                    Text(habit.name, style = MaterialTheme.typography.titleMedium)
+                    // show streak under the habit name
+                    Text(
+                        text = "🔥 ${habit.streak} day streak",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (habit.streak > 0) Color(0xFFFF9800) else Color.Gray
+                    )
+                }
             }
 
-            Checkbox(
-                checked = checked,
-                onCheckedChange = onCheckedChange
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // delete button
+                IconButton(onClick = onDelete) {
+                    Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = Color.Gray
+                    )
+                }
+                // check/uncheck checkbox
+                Checkbox(
+                    checked = habit.checkedToday,
+                    onCheckedChange = { onCheckedChange() }
+                )
+            }
         }
     }
 }

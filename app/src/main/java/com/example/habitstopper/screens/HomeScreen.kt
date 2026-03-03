@@ -5,6 +5,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Whatshot
@@ -17,25 +19,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.habitstopper.HabitCard
 import com.example.habitstopper.HabitItemCard
+import com.example.habitstopper.HabitViewModel
 import com.example.habitstopper.UserViewModel
-import com.example.habitstopper.habits
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(navController: NavController) {
-    val checkedStates = remember { mutableStateMapOf<String, Boolean>() }
-    var streak by remember { mutableStateOf(0) }
 
     val userViewModel: UserViewModel = viewModel()
+    val habitViewModel: HabitViewModel = viewModel()
+
+    // runs once when screen opens — loads user and habits from Firestore
     LaunchedEffect(Unit) {
         userViewModel.loadUserProfile()
+        habitViewModel.loadHabits()
     }
+
     val userProfile = userViewModel.userProfile
+    val habits = habitViewModel.habits
+    val isLoading = habitViewModel.isLoading
 
     val today = LocalDate.now()
     val dayName = today.format(DateTimeFormatter.ofPattern("EEEE"))
@@ -61,6 +66,7 @@ fun HomeScreen(navController: NavController) {
             .fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 40.dp)
     ) {
+        // HEADER
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -71,17 +77,16 @@ fun HomeScreen(navController: NavController) {
                     text = if (userProfile != null) "Hey, ${userProfile.displayName}!" else "Hey!",
                     style = MaterialTheme.typography.headlineSmall
                 )
-                Text(dayName, style = MaterialTheme.typography.headlineSmall)
-                Text(formattedSecondLine, style = MaterialTheme.typography.headlineSmall)
+                Text(dayName, style = MaterialTheme.typography.titleMedium)
+                Text(formattedSecondLine, style = MaterialTheme.typography.titleMedium)
             }
 
+            // streak shows the highest streak among all habits
+            val maxStreak = habits.maxOfOrNull { it.streak } ?: 0
             val streakColor =
-                if (streak > 0) Color(0xFFFF9800) else MaterialTheme.colorScheme.onBackground
+                if (maxStreak > 0) Color(0xFFFF9800) else MaterialTheme.colorScheme.onBackground
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { streak++ }
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Filled.Whatshot,
                     contentDescription = "Streak",
@@ -89,14 +94,14 @@ fun HomeScreen(navController: NavController) {
                     tint = streakColor
                 )
                 Text(
-                    text = streak.toString(),
+                    text = maxStreak.toString(),
                     modifier = Modifier.padding(start = 6.dp),
                     color = streakColor
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
@@ -117,7 +122,7 @@ fun HomeScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Text("What did you resist today ?", style = MaterialTheme.typography.titleLarge)
+        Text("What did you resist today?", style = MaterialTheme.typography.titleLarge)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -131,20 +136,37 @@ fun HomeScreen(navController: NavController) {
                 modifier = Modifier
                     .clip(RoundedCornerShape(16.dp))
                     .background(Color(0xFFEAEAEA))
-                    .clickable {}
+                    .clickable { /* we'll wire this next */ }
                     .padding(vertical = 10.dp, horizontal = 16.dp)
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            habits.forEach { habit ->
-                val checked = checkedStates[habit.name] ?: false
+        // show spinner while loading
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
+
+        // show message if no habits yet
+        if (!isLoading && habits.isEmpty()) {
+            Text(
+                text = "No habits yet. Add one!",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
+
+        // real habits from Firestore
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(habits) { habit ->
                 HabitItemCard(
                     habit = habit,
-                    checked = checked,
-                    onCheckedChange = { checkedStates[habit.name] = it }
+                    onCheckedChange = { habitViewModel.checkHabit(habit) },
+                    onDelete = { habitViewModel.deleteHabit(habit.id) }
                 )
             }
         }
