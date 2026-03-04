@@ -1,39 +1,461 @@
 package com.example.habitstopper.screens
 
-import androidx.compose.foundation.Image
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.habitstopper.R
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import com.example.habitstopper.HabitViewModel
+import com.example.habitstopper.UserViewModel
+import java.text.SimpleDateFormat
+import java.util.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.navigation.NavController
 
+data class Badge(
+    val emoji: String,
+    val name: String,
+    val requiredStreak: Int,
+    val gradient: List<Color>
+)
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ProfileScreen() {
-    Column(
+fun ProfileScreen(navController: NavController) {
+    val userViewModel: UserViewModel = viewModel()
+    val habitViewModel: HabitViewModel = viewModel()
+
+    LaunchedEffect(Unit) {
+        userViewModel.loadUserProfile()
+        habitViewModel.loadHabits()
+    }
+
+    val userProfile = userViewModel.userProfile
+    val habits = habitViewModel.habits
+    val bestStreak = habits.maxOfOrNull { it.streak } ?: 0
+    val totalHabits = habits.size
+    val completedToday = habits.count { it.checkedToday }
+
+    val joinDate = remember(userProfile?.joinDate) {
+        userProfile?.joinDate?.let {
+            SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(Date(it))
+        } ?: "—"
+    }
+
+
+    val badges = listOf(
+        Badge("🌱", "Beginner", 1, listOf(Color(0xFF56AB2F), Color(0xFFA8E063))),
+        Badge("🔥", "On Fire", 3, listOf(Color(0xFFFF6B6B), Color(0xFFFF4757))),
+        Badge("💧", "Consistent", 5, listOf(Color(0xFF1E90FF), Color(0xFF00D4AA))),
+        Badge("⚡", "Energized", 7, listOf(Color(0xFFFFD700), Color(0xFFFFA500))),
+        Badge("💪", "Committed", 14, listOf(Color(0xFF6C63FF), Color(0xFFA855F7))),
+        Badge("🧠", "Mindful", 21, listOf(Color(0xFF00D4AA), Color(0xFF1E90FF))),
+        Badge("🦁", "Fierce", 30, listOf(Color(0xFFFF6B35), Color(0xFFFF4757))),
+        Badge("💎", "Diamond", 50, listOf(Color(0xFF00D4AA), Color(0xFF6C63FF))),
+        Badge("🚀", "Rocket", 75, listOf(Color(0xFFA855F7), Color(0xFF6C63FF))),
+        Badge("👑", "Legend", 100, listOf(Color(0xFFFFD700), Color(0xFFFF6B35)))
+    )
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .background(Color(0xFFF7F4F0))
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 100.dp)
+        ) {
+            // HEADER
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color(0xFF1A1A2E), Color(0xFF16213E))
+                            )
+                        )
+                        .padding(horizontal = 24.dp)
+                        .padding(top = 48.dp, bottom = 32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                        // profile photo or initials fallback
+                        if (!userProfile?.photoUrl.isNullOrBlank()) {
+                            AsyncImage(
+                                model = userProfile?.photoUrl,
+                                contentDescription = "Profile Photo",
+                                modifier = Modifier
+                                    .size(90.dp)
+                                    .clip(CircleShape)
+                                    .border(
+                                        3.dp,
+                                        Brush.linearGradient(
+                                            colors = listOf(Color(0xFF6C63FF), Color(0xFF00D4AA))
+                                        ),
+                                        CircleShape
+                                    )
+                            )
+                        } else {
+                            // initials avatar when no photo
+                            Box(
+                                modifier = Modifier
+                                    .size(90.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        Brush.linearGradient(
+                                            colors = listOf(Color(0xFF6C63FF), Color(0xFFA855F7))
+                                        )
+                                    )
+                                    .border(
+                                        3.dp,
+                                        Brush.linearGradient(
+                                            colors = listOf(Color(0xFF00D4AA), Color(0xFF6C63FF))
+                                        ),
+                                        CircleShape
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = userProfile?.displayName
+                                        ?.take(1)
+                                        ?.uppercase() ?: "?",
+                                    fontSize = 36.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color.White
+                                )
+                            }
+                        }
+
+                        Spacer(Modifier.height(16.dp))
+
+                        Text(
+                            text = userProfile?.displayName ?: "Loading...",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.White
+                        )
+
+                        Spacer(Modifier.height(4.dp))
+
+                        Text(
+                            text = "Member since $joinDate",
+                            fontSize = 13.sp,
+                            color = Color.White.copy(alpha = 0.5f)
+                        )
+                    }
+                }
+            }
+
+            // STATS
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    ProfileStatCard("🎯", totalHabits.toString(), "Total Habits", listOf(Color(0xFF6C63FF), Color(0xFFA855F7)), Modifier.weight(1f))
+                    ProfileStatCard("✅", completedToday.toString(), "Done Today", listOf(Color(0xFF00D4AA), Color(0xFF6C63FF)), Modifier.weight(1f))
+                    ProfileStatCard("🔥", bestStreak.toString(), "Best Streak", listOf(Color(0xFFFF6B6B), Color(0xFFFF4757)), Modifier.weight(1f))
+                }
+            }
+
+            // BADGES
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                ) {
+                    Text(
+                        text = "STREAK BADGES",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color(0xFF1A1A2E).copy(alpha = 0.4f),
+                        letterSpacing = 2.sp
+                    )
+
+                    Spacer(Modifier.height(4.dp))
+
+                    // find next locked badge for progress bar
+                    val nextBadge = badges.firstOrNull { bestStreak < it.requiredStreak }
+                    val prevBadge = badges.lastOrNull { bestStreak >= it.requiredStreak }
+
+                    if (nextBadge != null) {
+                        val progressStart = prevBadge?.requiredStreak ?: 0
+                        val progressEnd = nextBadge.requiredStreak
+                        val progress = ((bestStreak - progressStart).toFloat() / (progressEnd - progressStart)).coerceIn(0f, 1f)
+
+                        Spacer(Modifier.height(10.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Next: ${nextBadge.emoji} ${nextBadge.name}",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1A1A2E)
+                            )
+                            Text(
+                                text = "$bestStreak / ${nextBadge.requiredStreak} days",
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                        }
+
+                        Spacer(Modifier.height(6.dp))
+
+                        // progress bar
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(8.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color(0xFFE0E0E0))
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(progress)
+                                    .height(8.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(
+                                        Brush.horizontalGradient(
+                                            colors = nextBadge.gradient
+                                        )
+                                    )
+                            )
+                        }
+
+                        Spacer(Modifier.height(16.dp))
+                    } else {
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            text = "🎉 All badges unlocked! You're a Legend!",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFFD700)
+                        )
+                        Spacer(Modifier.height(16.dp))
+                    }
+
+                    // badge grid — 5 per row
+                    badges.chunked(5).forEach { row ->
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            row.forEach { badge ->
+                                val unlocked = bestStreak >= badge.requiredStreak
+                                BadgeItem(
+                                    badge = badge,
+                                    unlocked = unlocked,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(10.dp))
+                    }
+                }
+            }
+            // HABITS LIST
+            item {
+                Spacer(Modifier.height(24.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                ) {
+                    Text(
+                        text = "MY HABITS",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color(0xFF1A1A2E).copy(alpha = 0.4f),
+                        letterSpacing = 2.sp
+                    )
+                    Spacer(Modifier.height(12.dp))
+
+                    if (habits.isEmpty()) {
+                        Text("No habits yet — go add some!", color = Color.Gray, fontSize = 14.sp)
+                    }
+
+                    habits.forEach { habit ->
+                        val cardColor = remember(habit.colorHex) {
+                            try { Color(android.graphics.Color.parseColor(habit.colorHex)) }
+                            catch (e: Exception) { Color(0xFF6C63FF) }
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(
+                                    Brush.linearGradient(
+                                        colors = listOf(cardColor, Color(0xFFA855F7))
+                                    )
+                                )
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("${habit.iconName} ${habit.name}", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
+                            Text("🔥 ${habit.streak}", fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, color = Color.White)
+                        }
+                    }
+                }
+            }
+            // SIGN OUT
+            item {
+                Spacer(Modifier.height(16.dp))
+                val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFFFF4757).copy(alpha = 0.12f))
+                        .border(1.dp, Color(0xFFFF4757).copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+                        .clickable {
+                            auth.signOut()
+                            navController.navigate("login") {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                        .padding(vertical = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Sign Out",
+                        color = Color(0xFFFF4757),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp
+                    )
+                }
+                Spacer(Modifier.height(24.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfileStatCard(
+    emoji: String,
+    value: String,
+    label: String,
+    gradient: List<Color>,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(Brush.linearGradient(colors = gradient))
+            .padding(vertical = 16.dp, horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_profile_placeholder),
-            contentDescription = "Profile",
-            modifier = Modifier
-                .size(96.dp)
-                .clip(CircleShape)
-                .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+        Text(emoji, fontSize = 22.sp)
+        Spacer(Modifier.height(6.dp))
+        Text(value, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+        Text(label, fontSize = 11.sp, color = Color.White.copy(alpha = 0.75f), textAlign = TextAlign.Center)
+    }
+}
+
+@Composable
+fun BadgeItem(
+    badge: Badge,
+    unlocked: Boolean,
+    modifier: Modifier = Modifier
+) {
+    // infinite glow animation for unlocked badges
+    val infiniteTransition = rememberInfiniteTransition(label = "glow")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = EaseInOut),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glowAlpha"
+    )
+
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = EaseInOut),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scale"
+    )
+
+    Column(
+        modifier = modifier
+            .graphicsLayer {
+                // only animate unlocked badges
+                scaleX = if (unlocked) scale else 1f
+                scaleY = if (unlocked) scale else 1f
+            }
+            .clip(RoundedCornerShape(14.dp))
+            .background(
+                if (unlocked)
+                    Brush.linearGradient(colors = badge.gradient)
+                else
+                    Brush.linearGradient(
+                        colors = listOf(Color(0xFFDDDDDD), Color(0xFFCCCCCC))
+                    )
+            )
+            // glowing border for unlocked badges
+            .then(
+                if (unlocked) Modifier.border(
+                    width = 2.dp,
+                    brush = Brush.linearGradient(
+                        colors = badge.gradient.map { it.copy(alpha = glowAlpha) }
+                    ),
+                    shape = RoundedCornerShape(14.dp)
+                ) else Modifier
+            )
+            .padding(vertical = 12.dp, horizontal = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = if (unlocked) badge.emoji else "🔒",
+            fontSize = 22.sp
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Profile", style = MaterialTheme.typography.headlineSmall)
-        Text("User settings and info will go here.", style = MaterialTheme.typography.bodyMedium)
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = badge.name,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (unlocked) Color.White else Color.Gray,
+            textAlign = TextAlign.Center,
+            maxLines = 1
+        )
+        Text(
+            text = "${badge.requiredStreak}d",
+            fontSize = 9.sp,
+            color = if (unlocked) Color.White.copy(alpha = 0.7f) else Color.Gray.copy(alpha = 0.6f),
+            textAlign = TextAlign.Center
+        )
     }
 }

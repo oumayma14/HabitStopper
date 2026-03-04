@@ -171,20 +171,6 @@ fun HomeScreen(navController: NavController) {
                     onDelete = { habitViewModel.deleteHabit(habit.id) }
                 )
             }
-
-            // SIGN OUT
-            item {
-                Spacer(Modifier.height(8.dp))
-                TextButton(
-                    onClick = {
-                        auth.signOut()
-                        navController.navigate("login") { popUpTo(0) { inclusive = true } }
-                    },
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
-                ) {
-                    Text("Sign out", color = Color.Gray, fontSize = 14.sp)
-                }
-            }
         }
 
         if (showAddHabitSheet) {

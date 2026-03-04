@@ -160,7 +160,7 @@ fun MainScreen() {
             composable(BottomNavItem.Home.route) { HomeScreen(navController) }
             composable(BottomNavItem.Habits.route) { HabitsScreen() }
             composable(BottomNavItem.Settings.route) { SettingsScreen() }
-            composable(BottomNavItem.Profile.route) {ProfileScreen()}
+            composable(BottomNavItem.Profile.route) {ProfileScreen(navController)}
         }
     }
 }

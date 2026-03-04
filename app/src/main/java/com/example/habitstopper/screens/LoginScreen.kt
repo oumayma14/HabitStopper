@@ -5,9 +5,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -15,20 +18,23 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.example.habitstopper.navigation.BottomNavItem
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import com.example.habitstopper.R
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.habitstopper.GoogleAuthClient
+import com.example.habitstopper.R
 import com.example.habitstopper.auth.AuthViewModel
+import com.example.habitstopper.navigation.BottomNavItem
 import kotlinx.coroutines.launch
 
 @Composable
@@ -36,12 +42,9 @@ fun LoginScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
-    var errorText by remember { mutableStateOf<String?>(null) } //error msg for validation
-    val panelColor= Color(0xFF4F6D7A)
-    val pageBg= Color.White
-    val viewModel : AuthViewModel = viewModel()
-    val isLoading = viewModel.isLoading //loading state
-
+    var errorText by remember { mutableStateOf<String?>(null) }
+    val viewModel: AuthViewModel = viewModel()
+    val isLoading = viewModel.isLoading
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -49,11 +52,9 @@ fun LoginScreen(navController: NavController) {
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
-    ) {
-        result ->
-        if (result.resultCode == Activity.RESULT_OK){
-            result.data?.let {
-                intent ->
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.let { intent ->
                 scope.launch {
                     val signInResult = googleAuthClient.signInWithIntent(intent)
                     if (signInResult.isSuccess) {
@@ -65,27 +66,14 @@ fun LoginScreen(navController: NavController) {
                     }
                 }
             }
-
         }
     }
 
-    //client-side validation function
     fun validate(): Boolean {
         val trimmedEmail = email.trim()
-        if(trimmedEmail.isEmpty()){
-            errorText = "Email is required"
-            return false
-        }
-
-        if(!trimmedEmail.contains("@") || !trimmedEmail.contains(".")) {
-            errorText = "Enter a valid email."
-            return false
-        }
-
-        if (password.length<6){
-            errorText = "Password must be at least 6 characters"
-            return false
-        }
+        if (trimmedEmail.isEmpty()) { errorText = "Email is required"; return false }
+        if (!trimmedEmail.contains("@") || !trimmedEmail.contains(".")) { errorText = "Enter a valid email."; return false }
+        if (password.length < 6) { errorText = "Password must be at least 6 characters"; return false }
         errorText = null
         return true
     }
@@ -93,248 +81,234 @@ fun LoginScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(pageBg)
-    ){
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(Color(0xFF1A1A2E), Color(0xFF16213E))
+                )
+            )
+    ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 52.dp),
-
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 28.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(Modifier.height(72.dp))
+
+            // LOGO
             Image(
                 painter = painterResource(id = R.drawable.logo_quitly),
                 contentDescription = "Logo",
                 modifier = Modifier
-                    .height(180.dp)
-                    .fillMaxWidth(0.9f)
-                    .padding(horizontal = 24.dp),
+                    .height(110.dp)
+                    .fillMaxWidth(0.55f),
                 contentScale = ContentScale.Fit
-
             )
-        }
-        //bottom rounded panel
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.72f)
-                .align(Alignment.BottomCenter),
-            color = panelColor,
-            shape = RoundedCornerShape(topStart = 48.dp, topEnd = 48.dp),
-            tonalElevation = 0.dp,
-            shadowElevation = 12.dp
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 28.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Already a user?",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.White
-                )
-                Spacer(Modifier.height(24.dp))
-                if (errorText != null) {
-                    Spacer(Modifier.height(10.dp))
-                    Text(
-                        text = errorText!!,
-                        color = Color(0xFFFFD6D6),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
 
-                viewModel.errorMessage?.let { firebaseError ->
-                    Text(
-                        text = firebaseError,
-                        color = Color(0xFFFFD6D6),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(Modifier.height(10.dp))
-                }
-                //input 1
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it
-                        if (errorText != null) errorText = null
-                    },
-                    placeholder = { Text("Email") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF3ECEC),
-                        unfocusedContainerColor = Color(0xFFF3ECEC),
+            Spacer(Modifier.height(28.dp))
 
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent,
+            // WELCOME TEXT
+            Text(
+                text = "Welcome back 👋",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White,
+                letterSpacing = (-0.5).sp
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = "Sign in to continue your streak",
+                fontSize = 14.sp,
+                color = Color.White.copy(alpha = 0.45f)
+            )
 
-                        cursorColor = panelColor,
+            Spacer(Modifier.height(40.dp))
 
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black
-                    )
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                //input 2
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it
-                        if (errorText != null) errorText = null
-                    },
-                    placeholder = { Text("Password") },
-                    singleLine = true,
-                    visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(onClick = { showPassword = !showPassword }) {
-                            Icon(
-                                imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = null,
-                                tint = Color(0xFF2F2F2F)
-                            )
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF3ECEC),
-                        unfocusedContainerColor = Color(0xFFF3ECEC),
-
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent,
-
-                        cursorColor = panelColor,
-
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black
-                    )
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                //forget password placeholder
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "Forgot password?",
-                        color = Color.White.copy(alpha = 0.85f),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .clickable(enabled = !isLoading) {
-                                // later: navController.navigate("forgot")
-                            }
-                    )
-                }
-                Spacer(Modifier.height(16.dp))
-
-                //login button
-                Button(
-                    onClick = {
-                        if (!validate()) return@Button
-
-                        viewModel.login(email,password){
-                        navController.navigate(BottomNavItem.Home.route) {
-                            popUpTo("login") { inclusive = true }
-                        }}
-                    },
-                    enabled = !isLoading,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFE7E7E7),
-                        contentColor = Color(0xFF2A2A2A)
-                    ),
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
-                        .width(120.dp)
-                        .height(42.dp)
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            strokeWidth = 2.dp,
-                            modifier = Modifier.size(18.dp),
-                            color = Color(0xFF2A2A2A)
-                        )
-                    } else {
-                        Text("Log In")
-                    }
-                }
-                Spacer(Modifier.height(18.dp))
-
-                //placeholder or
-                Row(
+            // ERROR MESSAGES
+            if (errorText != null) {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 18.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFFF4757).copy(alpha = 0.15f))
+                        .border(1.dp, Color(0xFFFF4757).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
-                    HorizontalDivider(
-                        modifier = Modifier.weight(1f),
-                        thickness = 1.dp,
-                        color = Color.White.copy(alpha = 0.35f)
-                    )
-                    Text(
-                        text = "Or",
-                        modifier = Modifier.padding(horizontal = 12.dp),
-                        color = Color.White.copy(alpha = 0.9f)
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.weight(1f),
-                        thickness = 1.dp,
-                        color = Color.White.copy(alpha = 0.35f)
-                    )
+                    Text("⚠️ $errorText", color = Color(0xFFFF6B6B), fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 }
                 Spacer(Modifier.height(16.dp))
-                // google button
-                Button(
-                    onClick = { launcher.launch(googleAuthClient.getSignInIntent()) },
-                    enabled = !isLoading,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFF3ECEC),
-                        contentColor = Color(0xFF1F1F1F)
-                    ),
-                    shape = RoundedCornerShape(12.dp),
+            }
+            viewModel.errorMessage?.let {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 4.dp,
-                        pressedElevation = 2.dp
-                    )
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFFF4757).copy(alpha = 0.15f))
+                        .border(1.dp, Color(0xFFFF4757).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.google),
-                            contentDescription = "Google",
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text("Sign in with Google")
-                    }
+                    Text("⚠️ $it", color = Color(0xFFFF6B6B), fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 }
                 Spacer(Modifier.height(16.dp))
+            }
 
-                //sign up text
-                Text(
-                    text = "New to Quitly?",
-                    color = Color.White.copy(alpha = 0.9f),
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            // FIELDS
+            AuthTextField(
+                value = email,
+                onValueChange = { email = it; if (errorText != null) errorText = null },
+                placeholder = "Email"
+            )
+            Spacer(Modifier.height(14.dp))
+            AuthTextField(
+                value = password,
+                onValueChange = { password = it; if (errorText != null) errorText = null },
+                placeholder = "Password",
+                isPassword = true,
+                showPassword = showPassword,
+                onTogglePassword = { showPassword = !showPassword }
+            )
 
+            Spacer(Modifier.height(12.dp))
+
+            // FORGOT PASSWORD
+            Box(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "Create an account",
-                    color = Color.White,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.clickable {
-                        navController.navigate("signup")
-                    }
+                    text = "Forgot password?",
+                    color = Color(0xFF6C63FF),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .clickable(enabled = !isLoading) {}
                 )
             }
+
+            Spacer(Modifier.height(28.dp))
+
+            // LOGIN BUTTON
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFF6C63FF), Color(0xFF00D4AA))
+                        )
+                    )
+                    .clickable(enabled = !isLoading) {
+                        if (!validate()) return@clickable
+                        viewModel.login(email, password) {
+                            navController.navigate(BottomNavItem.Home.route) {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(22.dp), color = Color.White)
+                } else {
+                    Text("Log In", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp)
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            // OR DIVIDER
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                HorizontalDivider(modifier = Modifier.weight(1f), color = Color.White.copy(alpha = 0.1f))
+                Text("  Or continue with  ", color = Color.White.copy(alpha = 0.35f), fontSize = 12.sp)
+                HorizontalDivider(modifier = Modifier.weight(1f), color = Color.White.copy(alpha = 0.1f))
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            // GOOGLE BUTTON
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.White.copy(alpha = 0.06f))
+                    .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(16.dp))
+                    .clickable(enabled = !isLoading) {
+                        launcher.launch(googleAuthClient.getSignInIntent())
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    Image(painter = painterResource(id = R.drawable.google), contentDescription = "Google", modifier = Modifier.size(22.dp))
+                    Spacer(Modifier.width(12.dp))
+                    Text("Sign in with Google", color = Color.White, fontWeight = FontWeight.Medium, fontSize = 15.sp)
+                }
+            }
+
+            Spacer(Modifier.height(32.dp))
+
+            // SIGN UP LINK
+            Row {
+                Text("New to Quitly? ", color = Color.White.copy(alpha = 0.45f), fontSize = 14.sp)
+                Text(
+                    text = "Create an account",
+                    color = Color(0xFF00D4AA),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    modifier = Modifier.clickable { navController.navigate("signup") }
+                )
+            }
+
+            Spacer(Modifier.height(48.dp))
         }
     }
+}
 
+@Composable
+fun AuthTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    isPassword: Boolean = false,
+    showPassword: Boolean = false,
+    onTogglePassword: () -> Unit = {}
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color.White.copy(alpha = 0.07f))
+            .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(14.dp))
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = { Text(placeholder, color = Color.White.copy(alpha = 0.25f), fontSize = 14.sp) },
+            singleLine = true,
+            visualTransformation = if (isPassword && !showPassword) PasswordVisualTransformation() else VisualTransformation.None,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                cursorColor = Color(0xFF6C63FF)
+            ),
+            modifier = Modifier.weight(1f),
+            trailingIcon = {
+                if (isPassword) {
+                    IconButton(onClick = onTogglePassword) {
+                        Icon(
+                            imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.4f)
+                        )
+                    }
+                }
+            }
+        )
+    }
 }
