@@ -68,6 +68,21 @@ class UserViewModel(
         }
     }
 
+    fun uploadProfilePhoto(imageUri: android.net.Uri) {
+        viewModelScope.launch {
+            try {
+                isLoading = true
+                repository.uploadProfilePhoto(imageUri)
+                updateSuccess = "Photo updated!"
+                loadUserProfile()
+            } catch (e: Exception) {
+                updateError = e.message ?: "Failed to upload photo"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
 
     fun clearMessage(){
         updateSuccess = null

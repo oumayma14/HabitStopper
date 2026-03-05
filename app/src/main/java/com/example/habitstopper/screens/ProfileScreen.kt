@@ -1,13 +1,20 @@
 package com.example.habitstopper.screens
 
+import android.net.Uri
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,22 +22,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.habitstopper.HabitViewModel
 import com.example.habitstopper.UserViewModel
 import java.text.SimpleDateFormat
 import java.util.*
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.navigation.NavController
+
 data class Badge(
     val emoji: String,
     val name: String,
@@ -61,7 +65,6 @@ fun ProfileScreen(navController: NavController) {
             SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(Date(it))
         } ?: "—"
     }
-
 
     val badges = listOf(
         Badge("🌱", "Beginner", 1, listOf(Color(0xFF56AB2F), Color(0xFFA8E063))),
@@ -100,8 +103,6 @@ fun ProfileScreen(navController: NavController) {
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-                        // profile photo or initials fallback
                         if (!userProfile?.photoUrl.isNullOrBlank()) {
                             AsyncImage(
                                 model = userProfile?.photoUrl,
@@ -109,7 +110,7 @@ fun ProfileScreen(navController: NavController) {
                                 modifier = Modifier
                                     .size(90.dp)
                                     .clip(CircleShape)
-                                    .clickable{showEditSheet = true}
+                                    .clickable { showEditSheet = true }
                                     .border(
                                         3.dp,
                                         Brush.linearGradient(
@@ -119,7 +120,6 @@ fun ProfileScreen(navController: NavController) {
                                     )
                             )
                         } else {
-                            // initials avatar when no photo
                             Box(
                                 modifier = Modifier
                                     .size(90.dp)
@@ -135,13 +135,12 @@ fun ProfileScreen(navController: NavController) {
                                             colors = listOf(Color(0xFF00D4AA), Color(0xFF6C63FF))
                                         ),
                                         CircleShape
-                                    ),
+                                    )
+                                    .clickable { showEditSheet = true },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = userProfile?.displayName
-                                        ?.take(1)
-                                        ?.uppercase() ?: "?",
+                                    text = userProfile?.displayName?.take(1)?.uppercase() ?: "?",
                                     fontSize = 36.sp,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = Color.White
@@ -149,24 +148,7 @@ fun ProfileScreen(navController: NavController) {
                             }
                         }
 
-                        Spacer(Modifier.height(16.dp))
-
-                        //edit button
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(Color.White.copy(alpha = 0.1f))
-                                .clickable{showEditSheet = true}
-                                .padding(horizontal = 16.dp, vertical = 6.dp)
-                        ) {
-                            Text(
-                                text = "Edit Profile",
-                                fontSize = 12.sp,
-                                color = Color.White.copy(alpha = 0.7f),
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-
+                        Spacer(Modifier.height(12.dp))
 
                         Text(
                             text = userProfile?.displayName ?: "Loading...",
@@ -182,6 +164,23 @@ fun ProfileScreen(navController: NavController) {
                             fontSize = 13.sp,
                             color = Color.White.copy(alpha = 0.5f)
                         )
+
+                        Spacer(Modifier.height(12.dp))
+
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(Color.White.copy(alpha = 0.1f))
+                                .clickable { showEditSheet = true }
+                                .padding(horizontal = 16.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                text = "✏️ Edit Profile",
+                                fontSize = 12.sp,
+                                color = Color.White.copy(alpha = 0.7f),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }
@@ -215,9 +214,6 @@ fun ProfileScreen(navController: NavController) {
                         letterSpacing = 2.sp
                     )
 
-                    Spacer(Modifier.height(4.dp))
-
-                    // find next locked badge for progress bar
                     val nextBadge = badges.firstOrNull { bestStreak < it.requiredStreak }
                     val prevBadge = badges.lastOrNull { bestStreak >= it.requiredStreak }
 
@@ -233,22 +229,12 @@ fun ProfileScreen(navController: NavController) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = "Next: ${nextBadge.emoji} ${nextBadge.name}",
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1A1A2E)
-                            )
-                            Text(
-                                text = "$bestStreak / ${nextBadge.requiredStreak} days",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
+                            Text("Next: ${nextBadge.emoji} ${nextBadge.name}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A2E))
+                            Text("$bestStreak / ${nextBadge.requiredStreak} days", fontSize = 12.sp, color = Color.Gray)
                         }
 
                         Spacer(Modifier.height(6.dp))
 
-                        // progress bar
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -261,66 +247,36 @@ fun ProfileScreen(navController: NavController) {
                                     .fillMaxWidth(progress)
                                     .height(8.dp)
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(
-                                        Brush.horizontalGradient(
-                                            colors = nextBadge.gradient
-                                        )
-                                    )
+                                    .background(Brush.horizontalGradient(colors = nextBadge.gradient))
                             )
                         }
-
                         Spacer(Modifier.height(16.dp))
                     } else {
                         Spacer(Modifier.height(10.dp))
-                        Text(
-                            text = "🎉 All badges unlocked! You're a Legend!",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFFD700)
-                        )
+                        Text("🎉 All badges unlocked! You're a Legend!", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFD700))
                         Spacer(Modifier.height(16.dp))
                     }
 
-                    // badge grid — 5 per row
                     badges.chunked(5).forEach { row ->
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                             row.forEach { badge ->
-                                val unlocked = bestStreak >= badge.requiredStreak
-                                BadgeItem(
-                                    badge = badge,
-                                    unlocked = unlocked,
-                                    modifier = Modifier.weight(1f)
-                                )
+                                BadgeItem(badge = badge, unlocked = bestStreak >= badge.requiredStreak, modifier = Modifier.weight(1f))
                             }
                         }
                         Spacer(Modifier.height(10.dp))
                     }
                 }
             }
+
             // HABITS LIST
             item {
                 Spacer(Modifier.height(24.dp))
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp)
-                ) {
-                    Text(
-                        text = "MY HABITS",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF1A1A2E).copy(alpha = 0.4f),
-                        letterSpacing = 2.sp
-                    )
+                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
+                    Text("MY HABITS", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1A2E).copy(alpha = 0.4f), letterSpacing = 2.sp)
                     Spacer(Modifier.height(12.dp))
-
                     if (habits.isEmpty()) {
                         Text("No habits yet — go add some!", color = Color.Gray, fontSize = 14.sp)
                     }
-
                     habits.forEach { habit ->
                         val cardColor = remember(habit.colorHex) {
                             try { Color(android.graphics.Color.parseColor(habit.colorHex)) }
@@ -331,11 +287,7 @@ fun ProfileScreen(navController: NavController) {
                                 .fillMaxWidth()
                                 .padding(vertical = 6.dp)
                                 .clip(RoundedCornerShape(14.dp))
-                                .background(
-                                    Brush.linearGradient(
-                                        colors = listOf(cardColor, Color(0xFFA855F7))
-                                    )
-                                )
+                                .background(Brush.linearGradient(colors = listOf(cardColor, Color(0xFFA855F7))))
                                 .padding(horizontal = 16.dp, vertical = 14.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
@@ -346,6 +298,7 @@ fun ProfileScreen(navController: NavController) {
                     }
                 }
             }
+
             // SIGN OUT
             item {
                 Spacer(Modifier.height(16.dp))
@@ -359,33 +312,28 @@ fun ProfileScreen(navController: NavController) {
                         .border(1.dp, Color(0xFFFF4757).copy(alpha = 0.3f), RoundedCornerShape(16.dp))
                         .clickable {
                             auth.signOut()
-                            navController.navigate("login") {
-                                popUpTo(0) { inclusive = true }
-                            }
+                            navController.navigate("login") { popUpTo(0) { inclusive = true } }
                         }
                         .padding(vertical = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "Sign Out",
-                        color = Color(0xFFFF4757),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
-                    )
+                    Text("Sign Out", color = Color(0xFFFF4757), fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 }
                 Spacer(Modifier.height(24.dp))
             }
         }
-        if (showEditSheet){
+
+        if (showEditSheet) {
             EditProfileSheet(
                 currentName = userProfile?.displayName ?: "",
                 currentPhotoURL = userProfile?.photoUrl ?: "",
-                onDismiss = {showEditSheet = false},
+                onDismiss = { showEditSheet = false },
                 userViewModel = userViewModel
             )
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileSheet(
@@ -393,9 +341,9 @@ fun EditProfileSheet(
     currentPhotoURL: String,
     onDismiss: () -> Unit,
     userViewModel: UserViewModel
-){
-    var displayName by remember {mutableStateOf(currentName)}
-    var photoUrl by remember { mutableStateOf(currentPhotoURL) }
+) {
+    var displayName by remember { mutableStateOf(currentName) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
@@ -404,7 +352,10 @@ fun EditProfileSheet(
     val successMessage = userViewModel.updateSuccess
     val errorMessage = userViewModel.updateError
 
-    //show success/error from viewmodel
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri -> uri?.let { selectedImageUri = it } }
+
     LaunchedEffect(successMessage, errorMessage) {
         if (successMessage != null || errorMessage != null) {
             kotlinx.coroutines.delay(2000)
@@ -429,31 +380,23 @@ fun EditProfileSheet(
                 .padding(top = 16.dp, bottom = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            //drag handle
+            // drag handle
             Box(
                 modifier = Modifier
                     .width(48.dp)
                     .height(5.dp)
                     .clip(CircleShape)
-                    .background(Brush.horizontalGradient(
-                        colors = listOf(Color(0xFF6C63FF), Color(0xFFA855F7))
-                    ))
+                    .background(Brush.horizontalGradient(colors = listOf(Color(0xFF6C63FF), Color(0xFFA855F7))))
             )
+
             Spacer(Modifier.height(20.dp))
 
-            Text(
-                text = "Edit profile",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.White
-            )
+            Text("Edit Profile", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
 
             Spacer(Modifier.height(24.dp))
 
-
-            //success message
-            if(successMessage != null){
+            // SUCCESS
+            if (successMessage != null) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -461,13 +404,13 @@ fun EditProfileSheet(
                         .background(Color(0xFF00D4AA).copy(alpha = 0.15f))
                         .border(1.dp, Color(0xFF00D4AA).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
                         .padding(horizontal = 16.dp, vertical = 10.dp)
-                ){
-                    Text("$successMessage", color = Color(0xFF00D4AA), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                ) {
+                    Text("✅ $successMessage", color = Color(0xFF00D4AA), fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 }
                 Spacer(Modifier.height(16.dp))
             }
 
-            //error message
+            // ERROR
             if (errorText != null || errorMessage != null) {
                 Box(
                     modifier = Modifier
@@ -481,30 +424,20 @@ fun EditProfileSheet(
                 }
                 Spacer(Modifier.height(16.dp))
             }
-            // DISPLAY NAME SECTION
+
+            // DISPLAY NAME
             SectionLabel("Display Name")
             Spacer(Modifier.height(10.dp))
-            AuthTextField(
-                value = displayName,
-                onValueChange = { displayName = it; errorText = null },
-                placeholder = "Your name"
-            )
+            AuthTextField(value = displayName, onValueChange = { displayName = it; errorText = null }, placeholder = "Your name")
             Spacer(Modifier.height(10.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(Color(0xFF6C63FF), Color(0xFFA855F7))
-                        )
-                    )
+                    .background(Brush.horizontalGradient(colors = listOf(Color(0xFF6C63FF), Color(0xFFA855F7))))
                     .clickable {
-                        if (displayName.trim().isEmpty()) {
-                            errorText = "Name cannot be empty"
-                            return@clickable
-                        }
+                        if (displayName.trim().isEmpty()) { errorText = "Name cannot be empty"; return@clickable }
                         userViewModel.updateDisplayName(displayName.trim())
                     },
                 contentAlignment = Alignment.Center
@@ -513,78 +446,84 @@ fun EditProfileSheet(
             }
 
             Spacer(Modifier.height(28.dp))
-            // PHOTO URL SECTION
-            SectionLabel("Profile Photo URL")
+
+            // PROFILE PHOTO
+            SectionLabel("Profile Photo")
             Spacer(Modifier.height(10.dp))
-            AuthTextField(
-                value = photoUrl,
-                onValueChange = { photoUrl = it; errorText = null },
-                placeholder = "https://..."
-            )
-            Spacer(Modifier.height(10.dp))
+
+            // preview selected image
+            if (selectedImageUri != null) {
+                AsyncImage(
+                    model = selectedImageUri,
+                    contentDescription = "Selected photo",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, Brush.linearGradient(colors = listOf(Color(0xFF6C63FF), Color(0xFF00D4AA))), CircleShape)
+                )
+                Spacer(Modifier.height(10.dp))
+            }
+
+            // gallery picker button
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(Color(0xFF6C63FF), Color(0xFFA855F7))
-                        )
-                    )
-                    .clickable {
-                        if (photoUrl.trim().isEmpty()) {
-                            errorText = "Photo URL cannot be empty"
-                            return@clickable
-                        }
-                        userViewModel.updatePhotoUrl(photoUrl.trim())
-                    },
+                    .background(Color.White.copy(alpha = 0.07f))
+                    .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(14.dp))
+                    .clickable { galleryLauncher.launch("image/*") },
                 contentAlignment = Alignment.Center
             ) {
-                Text("Update Photo", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(
+                    text = if (selectedImageUri != null) "📷 Change Photo" else "📷 Choose from Gallery",
+                    color = Color.White,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp
+                )
+            }
+
+            // upload button — only shown after picking
+            if (selectedImageUri != null) {
+                Spacer(Modifier.height(10.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Brush.horizontalGradient(colors = listOf(Color(0xFF6C63FF), Color(0xFF00D4AA))))
+                        .clickable {
+                            userViewModel.uploadProfilePhoto(selectedImageUri!!)
+                            selectedImageUri = null
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (userViewModel.isLoading) {
+                        CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(20.dp), color = Color.White)
+                    } else {
+                        Text("Upload Photo", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    }
+                }
             }
 
             Spacer(Modifier.height(28.dp))
-            // PASSWORD SECTION
+
+            // PASSWORD
             SectionLabel("Change Password")
             Spacer(Modifier.height(10.dp))
-            AuthTextField(
-                value = newPassword,
-                onValueChange = { newPassword = it; errorText = null },
-                placeholder = "New password",
-                isPassword = true,
-                showPassword = showPassword,
-                onTogglePassword = { showPassword = !showPassword }
-            )
+            AuthTextField(value = newPassword, onValueChange = { newPassword = it; errorText = null }, placeholder = "New password", isPassword = true, showPassword = showPassword, onTogglePassword = { showPassword = !showPassword })
             Spacer(Modifier.height(10.dp))
-            AuthTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it; errorText = null },
-                placeholder = "Confirm new password",
-                isPassword = true,
-                showPassword = showPassword,
-                onTogglePassword = { showPassword = !showPassword }
-            )
+            AuthTextField(value = confirmPassword, onValueChange = { confirmPassword = it; errorText = null }, placeholder = "Confirm new password", isPassword = true, showPassword = showPassword, onTogglePassword = { showPassword = !showPassword })
             Spacer(Modifier.height(10.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(Color(0xFFFF6B35), Color(0xFFFF4757))
-                        )
-                    )
+                    .background(Brush.horizontalGradient(colors = listOf(Color(0xFFFF6B35), Color(0xFFFF4757))))
                     .clickable {
-                        if (newPassword.length < 6) {
-                            errorText = "Password must be at least 6 characters"
-                            return@clickable
-                        }
-                        if (newPassword != confirmPassword) {
-                            errorText = "Passwords do not match"
-                            return@clickable
-                        }
+                        if (newPassword.length < 6) { errorText = "Password must be at least 6 characters"; return@clickable }
+                        if (newPassword != confirmPassword) { errorText = "Passwords do not match"; return@clickable }
                         userViewModel.updatePassword(newPassword)
                         newPassword = ""
                         confirmPassword = ""
@@ -595,17 +534,10 @@ fun EditProfileSheet(
             }
         }
     }
-
-
 }
+
 @Composable
-fun ProfileStatCard(
-    emoji: String,
-    value: String,
-    label: String,
-    gradient: List<Color>,
-    modifier: Modifier = Modifier
-) {
+fun ProfileStatCard(emoji: String, value: String, label: String, gradient: List<Color>, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
@@ -621,80 +553,37 @@ fun ProfileStatCard(
 }
 
 @Composable
-fun BadgeItem(
-    badge: Badge,
-    unlocked: Boolean,
-    modifier: Modifier = Modifier
-) {
-    // infinite glow animation for unlocked badges
+fun BadgeItem(badge: Badge, unlocked: Boolean, modifier: Modifier = Modifier) {
     val infiniteTransition = rememberInfiniteTransition(label = "glow")
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = EaseInOut),
-            repeatMode = RepeatMode.Reverse
-        ),
+        initialValue = 0.4f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(animation = tween(1000, easing = EaseInOut), repeatMode = RepeatMode.Reverse),
         label = "glowAlpha"
     )
-
     val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = EaseInOut),
-            repeatMode = RepeatMode.Reverse
-        ),
+        initialValue = 1f, targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(animation = tween(1000, easing = EaseInOut), repeatMode = RepeatMode.Reverse),
         label = "scale"
     )
 
     Column(
         modifier = modifier
-            .graphicsLayer {
-                // only animate unlocked badges
-                scaleX = if (unlocked) scale else 1f
-                scaleY = if (unlocked) scale else 1f
-            }
+            .graphicsLayer { scaleX = if (unlocked) scale else 1f; scaleY = if (unlocked) scale else 1f }
             .clip(RoundedCornerShape(14.dp))
             .background(
-                if (unlocked)
-                    Brush.linearGradient(colors = badge.gradient)
-                else
-                    Brush.linearGradient(
-                        colors = listOf(Color(0xFFDDDDDD), Color(0xFFCCCCCC))
-                    )
+                if (unlocked) Brush.linearGradient(colors = badge.gradient)
+                else Brush.linearGradient(colors = listOf(Color(0xFFDDDDDD), Color(0xFFCCCCCC)))
             )
-            // glowing border for unlocked badges
             .then(
-                if (unlocked) Modifier.border(
-                    width = 2.dp,
-                    brush = Brush.linearGradient(
-                        colors = badge.gradient.map { it.copy(alpha = glowAlpha) }
-                    ),
-                    shape = RoundedCornerShape(14.dp)
-                ) else Modifier
+                if (unlocked) Modifier.border(2.dp, Brush.linearGradient(colors = badge.gradient.map { it.copy(alpha = glowAlpha) }), RoundedCornerShape(14.dp))
+                else Modifier
             )
             .padding(vertical = 12.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = if (unlocked) badge.emoji else "🔒",
-            fontSize = 22.sp
-        )
+        Text(if (unlocked) badge.emoji else "🔒", fontSize = 22.sp)
         Spacer(Modifier.height(4.dp))
-        Text(
-            text = badge.name,
-            fontSize = 9.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (unlocked) Color.White else Color.Gray,
-            textAlign = TextAlign.Center,
-            maxLines = 1
-        )
-        Text(
-            text = "${badge.requiredStreak}d",
-            fontSize = 9.sp,
-            color = if (unlocked) Color.White.copy(alpha = 0.7f) else Color.Gray.copy(alpha = 0.6f),
-            textAlign = TextAlign.Center
-        )
+        Text(badge.name, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = if (unlocked) Color.White else Color.Gray, textAlign = TextAlign.Center, maxLines = 1)
+        Text("${badge.requiredStreak}d", fontSize = 9.sp, color = if (unlocked) Color.White.copy(alpha = 0.7f) else Color.Gray.copy(alpha = 0.6f), textAlign = TextAlign.Center)
     }
 }
