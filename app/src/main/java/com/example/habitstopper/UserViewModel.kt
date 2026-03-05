@@ -14,6 +14,12 @@ class UserViewModel(
         private set
     var isLoading by mutableStateOf(false)
         private set
+
+    var updateSuccess by mutableStateOf<String?>(null)
+        private set
+
+    var updateError by mutableStateOf<String?>(null)
+        private set
     fun loadUserProfile(){
         viewModelScope.launch{
             try{
@@ -26,6 +32,46 @@ class UserViewModel(
                 isLoading = false
             }
         }
+    }
+
+    fun updateDisplayName(newName: String){
+        viewModelScope.launch {
+            try {
+                repository.updateDisplayName(newName)
+                updateSuccess = "Name updated successfully"
+                loadUserProfile()
+            } catch (e: Exception){
+                updateError = e.message ?: "Failed to update name"
+            }
+        }
+    }
+
+    fun updatePassword(newPassword: String){
+        viewModelScope.launch {
+            try {
+                repository.updatePassword(newPassword)
+                updateSuccess = "Password updated successfully!"
+            } catch (e: Exception){
+                updateError = e.message ?: "Failed to update password"
+            }
+        }
+    }
+
+    fun updatePhotoUrl(photoUrl: String){
+        viewModelScope.launch {
+            try {
+                repository.updatePhotoUrl(photoUrl)
+                updateSuccess = "Photo updated successfully!"
+            }catch (e: Exception){
+                updateError = e.message ?: "Failed to update photo"
+            }
+        }
+    }
+
+
+    fun clearMessage(){
+        updateSuccess = null
+        updateError = null
     }
 
 }

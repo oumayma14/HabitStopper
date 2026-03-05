@@ -27,9 +27,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.navigation.NavController
-
 data class Badge(
     val emoji: String,
     val name: String,
@@ -42,6 +43,7 @@ data class Badge(
 fun ProfileScreen(navController: NavController) {
     val userViewModel: UserViewModel = viewModel()
     val habitViewModel: HabitViewModel = viewModel()
+    var showEditSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         userViewModel.loadUserProfile()
@@ -107,6 +109,7 @@ fun ProfileScreen(navController: NavController) {
                                 modifier = Modifier
                                     .size(90.dp)
                                     .clip(CircleShape)
+                                    .clickable{showEditSheet = true}
                                     .border(
                                         3.dp,
                                         Brush.linearGradient(
@@ -147,6 +150,23 @@ fun ProfileScreen(navController: NavController) {
                         }
 
                         Spacer(Modifier.height(16.dp))
+
+                        //edit button
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(Color.White.copy(alpha = 0.1f))
+                                .clickable{showEditSheet = true}
+                                .padding(horizontal = 16.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                text = "Edit Profile",
+                                fontSize = 12.sp,
+                                color = Color.White.copy(alpha = 0.7f),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+
 
                         Text(
                             text = userProfile?.displayName ?: "Loading...",
@@ -356,9 +376,228 @@ fun ProfileScreen(navController: NavController) {
                 Spacer(Modifier.height(24.dp))
             }
         }
+        if (showEditSheet){
+            EditProfileSheet(
+                currentName = userProfile?.displayName ?: "",
+                currentPhotoURL = userProfile?.photoUrl ?: "",
+                onDismiss = {showEditSheet = false},
+                userViewModel = userViewModel
+            )
+        }
     }
 }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditProfileSheet(
+    currentName: String,
+    currentPhotoURL: String,
+    onDismiss: () -> Unit,
+    userViewModel: UserViewModel
+){
+    var displayName by remember {mutableStateOf(currentName)}
+    var photoUrl by remember { mutableStateOf(currentPhotoURL) }
+    var newPassword by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var showPassword by remember { mutableStateOf(false) }
+    var errorText by remember { mutableStateOf<String?>(null) }
 
+    val successMessage = userViewModel.updateSuccess
+    val errorMessage = userViewModel.updateError
+
+    //show success/error from viewmodel
+    LaunchedEffect(successMessage, errorMessage) {
+        if (successMessage != null || errorMessage != null) {
+            kotlinx.coroutines.delay(2000)
+            userViewModel.clearMessage()
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = {
+            userViewModel.clearMessage()
+            onDismiss()
+        },
+        containerColor = Color(0xFF1A1A2E),
+        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+        dragHandle = {}
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp)
+                .padding(top = 16.dp, bottom = 40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            //drag handle
+            Box(
+                modifier = Modifier
+                    .width(48.dp)
+                    .height(5.dp)
+                    .clip(CircleShape)
+                    .background(Brush.horizontalGradient(
+                        colors = listOf(Color(0xFF6C63FF), Color(0xFFA855F7))
+                    ))
+            )
+            Spacer(Modifier.height(20.dp))
+
+            Text(
+                text = "Edit profile",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+
+            //success message
+            if(successMessage != null){
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF00D4AA).copy(alpha = 0.15f))
+                        .border(1.dp, Color(0xFF00D4AA).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                ){
+                    Text("$successMessage", color = Color(0xFF00D4AA), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                }
+                Spacer(Modifier.height(16.dp))
+            }
+
+            //error message
+            if (errorText != null || errorMessage != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFFF4757).copy(alpha = 0.15f))
+                        .border(1.dp, Color(0xFFFF4757).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                ) {
+                    Text("⚠️ ${errorText ?: errorMessage}", color = Color(0xFFFF6B6B), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                }
+                Spacer(Modifier.height(16.dp))
+            }
+            // DISPLAY NAME SECTION
+            SectionLabel("Display Name")
+            Spacer(Modifier.height(10.dp))
+            AuthTextField(
+                value = displayName,
+                onValueChange = { displayName = it; errorText = null },
+                placeholder = "Your name"
+            )
+            Spacer(Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFF6C63FF), Color(0xFFA855F7))
+                        )
+                    )
+                    .clickable {
+                        if (displayName.trim().isEmpty()) {
+                            errorText = "Name cannot be empty"
+                            return@clickable
+                        }
+                        userViewModel.updateDisplayName(displayName.trim())
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Update Name", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            }
+
+            Spacer(Modifier.height(28.dp))
+            // PHOTO URL SECTION
+            SectionLabel("Profile Photo URL")
+            Spacer(Modifier.height(10.dp))
+            AuthTextField(
+                value = photoUrl,
+                onValueChange = { photoUrl = it; errorText = null },
+                placeholder = "https://..."
+            )
+            Spacer(Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFF6C63FF), Color(0xFFA855F7))
+                        )
+                    )
+                    .clickable {
+                        if (photoUrl.trim().isEmpty()) {
+                            errorText = "Photo URL cannot be empty"
+                            return@clickable
+                        }
+                        userViewModel.updatePhotoUrl(photoUrl.trim())
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Update Photo", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            }
+
+            Spacer(Modifier.height(28.dp))
+            // PASSWORD SECTION
+            SectionLabel("Change Password")
+            Spacer(Modifier.height(10.dp))
+            AuthTextField(
+                value = newPassword,
+                onValueChange = { newPassword = it; errorText = null },
+                placeholder = "New password",
+                isPassword = true,
+                showPassword = showPassword,
+                onTogglePassword = { showPassword = !showPassword }
+            )
+            Spacer(Modifier.height(10.dp))
+            AuthTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it; errorText = null },
+                placeholder = "Confirm new password",
+                isPassword = true,
+                showPassword = showPassword,
+                onTogglePassword = { showPassword = !showPassword }
+            )
+            Spacer(Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFFFF6B35), Color(0xFFFF4757))
+                        )
+                    )
+                    .clickable {
+                        if (newPassword.length < 6) {
+                            errorText = "Password must be at least 6 characters"
+                            return@clickable
+                        }
+                        if (newPassword != confirmPassword) {
+                            errorText = "Passwords do not match"
+                            return@clickable
+                        }
+                        userViewModel.updatePassword(newPassword)
+                        newPassword = ""
+                        confirmPassword = ""
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Update Password", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            }
+        }
+    }
+
+
+}
 @Composable
 fun ProfileStatCard(
     emoji: String,

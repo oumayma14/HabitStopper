@@ -1,6 +1,7 @@
 package com.example.habitstopper
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -30,4 +31,33 @@ class UserRepository{
             newProfile
         }
     }
+
+
+    //update display name
+    suspend fun updateDisplayName(newName: String){
+        val user = auth.currentUser ?: return
+        val profileUpdates = UserProfileChangeRequest.Builder()
+            .setDisplayName(newName)
+            .build()
+        user.updateProfile(profileUpdates).await()
+        db.collection("users").document(user.uid)
+            .update("displayName", newName).await()
+    }
+
+    suspend fun updatePassword(newPasssword: String){
+        val user = auth.currentUser ?: return
+        user.updatePassword(newPasssword).await()
+    }
+
+    suspend fun updatePhotoUrl(photoUrl: String){
+        val user = auth.currentUser ?: return
+        val profileUpdates = UserProfileChangeRequest.Builder()
+            .setPhotoUri(android.net.Uri.parse(photoUrl))
+            .build()
+        user.updateProfile(profileUpdates).await()
+        db.collection("users").document(user.uid)
+            .update("photoUrl", photoUrl).await()
+
+    }
+
 }
