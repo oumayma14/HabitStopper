@@ -6,5 +6,7 @@ data class UserProfile(
     val email: String = "",
     val photoUrl: String = "",
     val joinDate: Long = 0L,
-    val currentStreak: Int = 0
+    val currentStreak: Int = 0,
+    val bestStreakEver: Int = 0,
+    val unlockedBadges: List<String> = emptyList()
 )

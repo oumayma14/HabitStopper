@@ -20,24 +20,34 @@ class HabitRepository {
     suspend fun getHabits(): List<Habit> {
         val snapshot = habitsCollection.get().await()
         val today = LocalDate.now().toString()
+        val yesterday = LocalDate.now().minusDays(1).toString()
 
-        val habits = snapshot.documents.mapNotNull {
-            doc -> doc.toObject(Habit::class.java)?.copy(id = doc.id)
+        val habits = snapshot.documents.mapNotNull { doc ->
+            doc.toObject(Habit::class.java)?.copy(id = doc.id)
         }
 
-        habits.forEach {
-            habit ->
-            if (habit.checkedToday && habit.lastCheckedDate != today) {
+        habits.forEach { habit ->
+            val lastChecked = habit.lastCheckedDate
+
+            // reset checkedToday if it wasn't checked today
+            if (habit.checkedToday && lastChecked != today) {
                 habitsCollection.document(habit.id).update("checkedToday", false).await()
             }
+
+            // reset streak if last check was more than 1 day ago
+            // meaning they missed yesterday AND today
+            if (habit.streak > 0 && lastChecked != today && lastChecked != yesterday) {
+                habitsCollection.document(habit.id).update("streak", 0).await()
+            }
         }
 
-        return habits.map {
-            habit -> if (habit.checkedToday && habit.lastCheckedDate != today){
-                habit.copy(checkedToday = false)
-            }else{
-                habit
-            }
+        // return habits with local corrections applied
+        return habits.map { habit ->
+            val lastChecked = habit.lastCheckedDate
+            habit.copy(
+                checkedToday = if (habit.checkedToday && lastChecked != today) false else habit.checkedToday,
+                streak = if (habit.streak > 0 && lastChecked != today && lastChecked != yesterday) 0 else habit.streak
+            )
         }
     }
 
