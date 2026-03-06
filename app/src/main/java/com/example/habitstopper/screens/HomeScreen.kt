@@ -98,8 +98,7 @@ fun HomeScreen(navController: NavController) {
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             StatChip("Habits", habits.size.toString(), Color(0xFF6C63FF))
                             StatChip("Done today", habits.count { it.checkedToday }.toString(), Color(0xFF00D4AA))
-                            StatChip("Best streak", "🔥 ${habits.maxOfOrNull { it.streak } ?: 0}", Color(0xFFFF6B6B))
-                        }
+                            StatChip("Best streak", "🔥 ${maxOf(habits.maxOfOrNull { it.streak } ?: 0, userProfile?.bestStreakEver ?: 0)}", Color(0xFFFF6B6B))                        }
                     }
                 }
             }

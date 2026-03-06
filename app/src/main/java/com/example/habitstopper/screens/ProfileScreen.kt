@@ -54,6 +54,7 @@ fun ProfileScreen(navController: NavController) {
     val userProfile = userViewModel.userProfile
     val habits = habitViewModel.habits
     val bestStreak = habits.maxOfOrNull { it.streak } ?: 0
+    val bestStreakEver = maxOf(bestStreak, userProfile?.bestStreakEver ?: 0)
     val totalHabits = habits.size
     val completedToday = habits.count { it.checkedToday }
 
@@ -196,7 +197,7 @@ fun ProfileScreen(navController: NavController) {
                 ) {
                     ProfileStatCard("🎯", totalHabits.toString(), "Total Habits", listOf(Color(0xFF6C63FF), Color(0xFFA855F7)), Modifier.weight(1f))
                     ProfileStatCard("✅", completedToday.toString(), "Done Today", listOf(Color(0xFF00D4AA), Color(0xFF6C63FF)), Modifier.weight(1f))
-                    ProfileStatCard("🔥", bestStreak.toString(), "Best Streak", listOf(Color(0xFFFF6B6B), Color(0xFFFF4757)), Modifier.weight(1f))
+                    ProfileStatCard("🔥", bestStreakEver.toString(), "Best Streak", listOf(Color(0xFFFF6B6B), Color(0xFFFF4757)), Modifier.weight(1f))
                 }
             }
 
@@ -215,14 +216,13 @@ fun ProfileScreen(navController: NavController) {
                         letterSpacing = 2.sp
                     )
 
-                    val nextBadge = badges.firstOrNull { bestStreak < it.requiredStreak }
-                    val prevBadge = badges.lastOrNull { bestStreak >= it.requiredStreak }
+                    val nextBadge = badges.firstOrNull { bestStreakEver < it.requiredStreak }
+                    val prevBadge = badges.lastOrNull { bestStreakEver >= it.requiredStreak }
 
                     if (nextBadge != null) {
                         val progressStart = prevBadge?.requiredStreak ?: 0
                         val progressEnd = nextBadge.requiredStreak
-                        val progress = ((bestStreak - progressStart).toFloat() / (progressEnd - progressStart)).coerceIn(0f, 1f)
-
+                        val progress = ((bestStreakEver - progressStart).toFloat() / (progressEnd - progressStart)).coerceIn(0f, 1f)
                         Spacer(Modifier.height(10.dp))
 
                         Row(
@@ -231,7 +231,7 @@ fun ProfileScreen(navController: NavController) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text("Next: ${nextBadge.emoji} ${nextBadge.name}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A2E))
-                            Text("$bestStreak / ${nextBadge.requiredStreak} days", fontSize = 12.sp, color = Color.Gray)
+                            Text("$bestStreakEver / ${nextBadge.requiredStreak} days", fontSize = 12.sp, color = Color.Gray)
                         }
 
                         Spacer(Modifier.height(6.dp))
@@ -261,8 +261,7 @@ fun ProfileScreen(navController: NavController) {
                     badges.chunked(5).forEach { row ->
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                             row.forEach { badge ->
-                                BadgeItem(badge = badge, unlocked = bestStreak >= badge.requiredStreak, modifier = Modifier.weight(1f))
-                            }
+                                BadgeItem(badge = badge, unlocked = (userProfile?.unlockedBadges ?: emptyList()).contains(badge.name) || bestStreakEver >= badge.requiredStreak, modifier = Modifier.weight(1f))                            }
                         }
                         Spacer(Modifier.height(10.dp))
                     }
@@ -331,6 +330,16 @@ fun ProfileScreen(navController: NavController) {
                 onDismiss = { showEditSheet = false },
                 userViewModel = userViewModel
             )
+        }
+
+        //sync best streak and badges to firestore
+        LaunchedEffect(habits) {
+            if (habits.isEmpty()) return@LaunchedEffect
+            val currentBestStreak = habits.maxOfOrNull { it.streak } ?: 0
+            val unlockedBadgeNames = badges
+                .filter { bestStreakEver >= it.requiredStreak }
+                .map { it.name }
+            userViewModel.syncStreakAndBadges(bestStreakEver, unlockedBadgeNames)
         }
     }
 }

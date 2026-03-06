@@ -69,11 +69,20 @@ class UserViewModel(
         }
     }
 
-
-
     fun clearMessage(){
         updateSuccess = null
         updateError = null
+    }
+
+    fun syncStreakAndBadges(currentBestStreak: Int, unlockedBadgeName: List<String>){
+        viewModelScope.launch {
+            try {
+                repository.updateStreakAndBadges(currentBestStreak, unlockedBadgeName)
+                loadUserProfile()
+            }catch (e: Exception){
+                e.printStackTrace()
+            }
+        }
     }
 
 }

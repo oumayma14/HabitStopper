@@ -57,4 +57,24 @@ class UserRepository {
         db.collection("users").document(user.uid)
             .update("photoUrl", photoUrl).await()
     }
+
+    suspend fun updateStreakAndBadges(currentBestStreak: Int, badgeNames: List<String>){
+        val uid = auth.currentUser?.uid ?: return
+        val docRef = db.collection("users").document(uid)
+        val snapshot = docRef.get().await()
+        val profile = snapshot.toObject(UserProfile::class.java) ?: return
+
+        //only update the best streak if the user achieved a higher streak
+        val newBestStreak = maxOf(profile.bestStreakEver, currentBestStreak)
+
+        //merge new badges with existing ones
+        val mergedBadges = (profile.unlockedBadges + badgeNames).distinct()
+
+        docRef.update(
+            mapOf(
+                "bestStreakEver" to newBestStreak,
+                "unlockedBadges" to mergedBadges
+            )
+        ).await()
+    }
 }
