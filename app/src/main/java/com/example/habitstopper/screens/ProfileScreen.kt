@@ -1,9 +1,6 @@
 package com.example.habitstopper.screens
 
-import android.net.Uri
 import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -105,7 +102,11 @@ fun ProfileScreen(navController: NavController) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         if (!userProfile?.photoUrl.isNullOrBlank()) {
                             AsyncImage(
-                                model = userProfile?.photoUrl,
+                                model = coil.request.ImageRequest.Builder(androidx.compose.ui.platform.LocalContext.current)
+                                    .data(userProfile?.photoUrl)
+                                    .diskCachePolicy(coil.request.CachePolicy.DISABLED)
+                                    .memoryCachePolicy(coil.request.CachePolicy.DISABLED)
+                                    .build(),
                                 contentDescription = "Profile Photo",
                                 modifier = Modifier
                                     .size(90.dp)
@@ -343,18 +344,18 @@ fun EditProfileSheet(
     userViewModel: UserViewModel
 ) {
     var displayName by remember { mutableStateOf(currentName) }
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf<String?>(null) }
+    var showPhotoTip by remember { mutableStateOf(false) }
+    var photoUrl by remember { mutableStateOf(currentPhotoURL) }
+
+
 
     val successMessage = userViewModel.updateSuccess
     val errorMessage = userViewModel.updateError
 
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri -> uri?.let { selectedImageUri = it } }
 
     LaunchedEffect(successMessage, errorMessage) {
         if (successMessage != null || errorMessage != null) {
@@ -448,64 +449,77 @@ fun EditProfileSheet(
             Spacer(Modifier.height(28.dp))
 
             // PROFILE PHOTO
-            SectionLabel("Profile Photo")
-            Spacer(Modifier.height(10.dp))
-
-            // preview selected image
-            if (selectedImageUri != null) {
-                AsyncImage(
-                    model = selectedImageUri,
-                    contentDescription = "Selected photo",
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                        .border(2.dp, Brush.linearGradient(colors = listOf(Color(0xFF6C63FF), Color(0xFF00D4AA))), CircleShape)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(
+                    text = "PROFILE PHOTO URL",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White.copy(alpha = 0.35f),
+                    letterSpacing = 2.sp
                 )
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .size(18.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.15f))
+                        .clickable { showPhotoTip = !showPhotoTip },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("?", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+                }
             }
+            if (showPhotoTip) {
+                Spacer(Modifier.height(8.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF6C63FF).copy(alpha = 0.15f))
+                        .border(1.dp, Color(0xFF6C63FF).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 14.dp, vertical = 10.dp)
+                ) {
+                    Text(
+                        text = "1. Go to imgur.com\n2. Upload your photo\n3. Right-click the image → Copy image address\n4. Paste the link here and tap Update Photo",
+                        fontSize = 12.sp,
+                        color = Color.White.copy(alpha = 0.75f),
+                        lineHeight = 20.sp
+                    )
+                }
+            }
+            Spacer(Modifier.height(6.dp))
 
-            // gallery picker button
+            AuthTextField(
+                value = photoUrl,
+                onValueChange = { photoUrl = it; errorText = null },
+                placeholder = "https://i.imgur.com/..."
+            )
+            Spacer(Modifier.height(10.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color.White.copy(alpha = 0.07f))
-                    .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(14.dp))
-                    .clickable { galleryLauncher.launch("image/*") },
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFF6C63FF), Color(0xFF00D4AA))
+                        )
+                    )
+                    .clickable {
+                        if (photoUrl.trim().isEmpty()) {
+                            errorText = "Please enter a photo URL"
+                            return@clickable
+                        }
+                        userViewModel.updatePhotoUrl(photoUrl.trim())
+                    },
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = if (selectedImageUri != null) "📷 Change Photo" else "📷 Choose from Gallery",
-                    color = Color.White,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp
-                )
+                Text("Update Photo", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
-
-            // upload button — only shown after picking
-            if (selectedImageUri != null) {
-                Spacer(Modifier.height(10.dp))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(Brush.horizontalGradient(colors = listOf(Color(0xFF6C63FF), Color(0xFF00D4AA))))
-                        .clickable {
-                            userViewModel.uploadProfilePhoto(selectedImageUri!!)
-                            selectedImageUri = null
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (userViewModel.isLoading) {
-                        CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(20.dp), color = Color.White)
-                    } else {
-                        Text("Upload Photo", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                    }
-                }
-            }
-
             Spacer(Modifier.height(28.dp))
 
             // PASSWORD

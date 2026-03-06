@@ -57,16 +57,4 @@ class UserRepository {
         db.collection("users").document(user.uid)
             .update("photoUrl", photoUrl).await()
     }
-
-    suspend fun uploadProfilePhoto(imageUri: Uri): String? {
-        val uid = auth.currentUser?.uid ?: return null
-        val storageRef = FirebaseStorage.getInstance()
-            .reference
-            .child("profile_photos/$uid.jpg")
-
-        storageRef.putFile(imageUri).await()
-        val downloadUrl = storageRef.downloadUrl.await()
-        updatePhotoUrl(downloadUrl.toString())
-        return downloadUrl.toString()
-    }
 }

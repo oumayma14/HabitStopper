@@ -62,26 +62,13 @@ class UserViewModel(
             try {
                 repository.updatePhotoUrl(photoUrl)
                 updateSuccess = "Photo updated successfully!"
+                loadUserProfile()
             }catch (e: Exception){
                 updateError = e.message ?: "Failed to update photo"
             }
         }
     }
 
-    fun uploadProfilePhoto(imageUri: android.net.Uri) {
-        viewModelScope.launch {
-            try {
-                isLoading = true
-                repository.uploadProfilePhoto(imageUri)
-                updateSuccess = "Photo updated!"
-                loadUserProfile()
-            } catch (e: Exception) {
-                updateError = e.message ?: "Failed to upload photo"
-            } finally {
-                isLoading = false
-            }
-        }
-    }
 
 
     fun clearMessage(){
