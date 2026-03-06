@@ -1,27 +1,32 @@
 package com.example.habitstopper.navigation
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
-import com.example.habitstopper.R
 
 @Composable
 fun BottomBar(
     navController: NavController,
-    userImageUrl: String? = null // pass null to use default image
+    userImageUrl: String? = null
 ) {
     val items = listOf(
         BottomNavItem.Home,
@@ -30,58 +35,128 @@ fun BottomBar(
         BottomNavItem.Profile
     )
 
-    NavigationBar {
-        val currentRoute = navController.currentBackStackEntryAsState().value
-            ?.destination
-            ?.route
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
-        items.forEach { item ->
-            val selected = currentRoute == item.route
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(16.dp, RoundedCornerShape(28.dp))
+                .clip(RoundedCornerShape(28.dp))
+                .background(Color(0xFF1A1A2E))
+                .padding(horizontal = 8.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            items.forEach { item ->
+                val selected = currentRoute == item.route
 
-            NavigationBarItem(
-                selected = selected,
-                onClick = {
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
-                icon = {
-                    if (item == BottomNavItem.Profile) {
-                        val avatarModifier = Modifier
-                            .size(28.dp)
-                            .clip(CircleShape)
-                            .then(
-                                if (selected) Modifier.border(
-                                    width = 2.dp,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    shape = CircleShape
-                                ) else Modifier
-                            )
-
-                        if (!userImageUrl.isNullOrBlank()) {
-                            AsyncImage(
-                                model = userImageUrl,
-                                contentDescription = "Profile",
-                                modifier = avatarModifier
-                            )
-                        } else {
-                            // default image in drawable (create this)
-                            Image(
-                                painter = androidx.compose.ui.res.painterResource(id = R.drawable.ic_profile_placeholder),
-                                contentDescription = "Profile",
-                                modifier = avatarModifier
-                            )
+                Column(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable {
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    if (selected) {
+                        // active pill background
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(
+                                    Brush.horizontalGradient(
+                                        colors = listOf(Color(0xFF6C63FF), Color(0xFF00D4AA))
+                                    )
+                                )
+                                .padding(horizontal = 12.dp, vertical = 6.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (item == BottomNavItem.Profile) {
+                                ProfileIcon(userImageUrl = userImageUrl, selected = true)
+                            } else {
+                                Icon(
+                                    imageVector = item.icon!!,
+                                    contentDescription = item.title,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         }
                     } else {
-                        Icon(
-                            imageVector = item.icon!!,
-                            contentDescription = item.title
-                        )
+                        // inactive icon
+                        if (item == BottomNavItem.Profile) {
+                            ProfileIcon(userImageUrl = userImageUrl, selected = false)
+                        } else {
+                            Icon(
+                                imageVector = item.icon!!,
+                                contentDescription = item.title,
+                                tint = Color.White.copy(alpha = 0.35f),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
-                },
-                label = { Text(item.title) }
+
+                    Spacer(Modifier.height(4.dp))
+
+                    Text(
+                        text = item.title,
+                        fontSize = 10.sp,
+                        fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Normal,
+                        color = if (selected) Color.White else Color.White.copy(alpha = 0.35f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfileIcon(userImageUrl: String?, selected: Boolean) {
+    val size = 22.dp
+    if (!userImageUrl.isNullOrBlank()) {
+        AsyncImage(
+            model = userImageUrl,
+            contentDescription = "Profile",
+            modifier = Modifier
+                .size(size)
+                .clip(CircleShape)
+                .then(
+                    if (selected) Modifier.border(2.dp, Color.White, CircleShape)
+                    else Modifier.border(1.dp, Color.White.copy(alpha = 0.3f), CircleShape)
+                )
+        )
+    } else {
+        Box(
+            modifier = Modifier
+                .size(size)
+                .clip(CircleShape)
+                .background(
+                    if (selected) Color.White.copy(alpha = 0.2f)
+                    else Color.White.copy(alpha = 0.08f)
+                )
+                .then(
+                    if (selected) Modifier.border(2.dp, Color.White, CircleShape)
+                    else Modifier.border(1.dp, Color.White.copy(alpha = 0.3f), CircleShape)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                "👤",
+                fontSize = 12.sp
             )
         }
     }
