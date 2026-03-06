@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class UserViewModel(
     private val repository: UserRepository = UserRepository()
@@ -81,6 +82,25 @@ class UserViewModel(
                 loadUserProfile()
             }catch (e: Exception){
                 e.printStackTrace()
+            }
+        }
+    }
+
+    fun deleteAccount(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                // delete all habits first
+                val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return@launch
+                val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                val habits = db.collection("users").document(uid).collection("habits").get().await()
+                habits.documents.forEach { it.reference.delete().await() }
+                // delete user document
+                db.collection("users").document(uid).delete().await()
+                // delete firebase auth account
+                com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.delete()?.await()
+                onSuccess()
+            } catch (e: Exception) {
+                updateError = e.message ?: "Failed to delete account"
             }
         }
     }

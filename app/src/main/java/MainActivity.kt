@@ -24,6 +24,10 @@ import com.example.habitstopper.screens.LoginScreen
 import com.example.habitstopper.screens.SignUpScreen
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.habitstopper.screens.HomeScreen
+import com.example.habitstopper.screens.HelpScreen
+import com.example.habitstopper.screens.FeedbackScreen
+import com.example.habitstopper.screens.TermsScreen
+import com.example.habitstopper.screens.PrivacyScreen
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -69,8 +73,12 @@ fun MainScreen() {
             composable("signup") { SignUpScreen(navController) }
             composable(BottomNavItem.Home.route) { HomeScreen(navController) }
             composable(BottomNavItem.Habits.route) { HabitsScreen() }
-            composable(BottomNavItem.Settings.route) { SettingsScreen() }
+            composable(BottomNavItem.Settings.route) { SettingsScreen(navController) }
             composable(BottomNavItem.Profile.route) { ProfileScreen(navController) }
+            composable("help") { HelpScreen(navController) }
+            composable("feedback") { FeedbackScreen(navController) }
+            composable("terms") { TermsScreen(navController) }
+            composable("privacy") { PrivacyScreen(navController) }
         }
     }
 }
