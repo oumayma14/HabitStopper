@@ -8,5 +8,6 @@ data class UserProfile(
     val joinDate: Long = 0L,
     val currentStreak: Int = 0,
     val bestStreakEver: Int = 0,
-    val unlockedBadges: List<String> = emptyList()
+    val unlockedBadges: List<String> = emptyList(),
+    val darkMode: Boolean = false
 )

@@ -47,7 +47,7 @@ fun AddHabitSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF1A1A2E),
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
         dragHandle = {}
     ) {
@@ -80,12 +80,12 @@ fun AddHabitSheet(
                 text = "💥 Break a Habit",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "What are you quitting today?",
                 fontSize = 13.sp,
-                color = Color.White.copy(alpha = 0.45f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
             )
 
             Spacer(Modifier.height(28.dp))
@@ -100,7 +100,7 @@ fun AddHabitSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White.copy(alpha = 0.07f))
+                    .background(MaterialTheme.colorScheme.surface)
                     .border(
                         width = 2.dp,
                         brush = Brush.horizontalGradient(
@@ -125,7 +125,7 @@ fun AddHabitSheet(
                     placeholder = {
                         Text(
                             "e.g. No Sugar, No Smoking...",
-                            color = Color.White.copy(alpha = 0.25f),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
                             fontSize = 14.sp
                         )
                     },
@@ -135,8 +135,8 @@ fun AddHabitSheet(
                         unfocusedContainerColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                         cursorColor = selectedColorParsed
                     ),
                     modifier = Modifier.weight(1f)
@@ -147,7 +147,7 @@ fun AddHabitSheet(
                 Spacer(Modifier.height(6.dp))
                 Text(
                     text = "⚠️ $errorText",
-                    color = Color(0xFFFF4757),
+                    color = MaterialTheme.colorScheme.error,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -188,8 +188,8 @@ fun AddHabitSheet(
                                     else
                                         Brush.linearGradient(
                                             colors = listOf(
-                                                Color.White.copy(alpha = 0.05f),
-                                                Color.White.copy(alpha = 0.05f)
+                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
                                             )
                                         )
                                 )
@@ -234,7 +234,7 @@ fun AddHabitSheet(
                             .then(
                                 if (isSelected) Modifier.border(3.dp, Color.White, CircleShape)
                                 else Modifier.border(
-                                    1.5.dp, Color.White.copy(alpha = 0.1f), CircleShape
+                                    1.5.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f), CircleShape
                                 )
                             )
                             .clickable { selectedColor = colorHex },
@@ -243,7 +243,7 @@ fun AddHabitSheet(
                         if (isSelected) {
                             Text(
                                 "✓",
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.ExtraBold
                             )
@@ -279,7 +279,7 @@ fun AddHabitSheet(
             ) {
                 Text(
                     text = "Add Habit 🚀",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 17.sp,
                     letterSpacing = 0.5.sp
@@ -295,7 +295,7 @@ fun SectionLabel(text: String) {
         text = text.uppercase(),
         fontSize = 11.sp,
         fontWeight = FontWeight.ExtraBold,
-        color = Color.White.copy(alpha = 0.35f),
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
         letterSpacing = 2.sp,
         modifier = Modifier.fillMaxWidth()
     )

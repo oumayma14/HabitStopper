@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun BottomBar(
@@ -48,7 +49,7 @@ fun BottomBar(
                 .fillMaxWidth()
                 .shadow(16.dp, RoundedCornerShape(28.dp))
                 .clip(RoundedCornerShape(28.dp))
-                .background(Color(0xFF1A1A2E))
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(horizontal = 8.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
@@ -79,7 +80,7 @@ fun BottomBar(
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(
                                     Brush.horizontalGradient(
-                                        colors = listOf(Color(0xFF6C63FF), Color(0xFF00D4AA))
+                                        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                                     )
                                 )
                                 .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -104,7 +105,7 @@ fun BottomBar(
                             Icon(
                                 imageVector = item.icon!!,
                                 contentDescription = item.title,
-                                tint = Color.White.copy(alpha = 0.35f),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -116,7 +117,7 @@ fun BottomBar(
                         text = item.title,
                         fontSize = 10.sp,
                         fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Normal,
-                        color = if (selected) Color.White else Color.White.copy(alpha = 0.35f)
+                        color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
                     )
                 }
             }
@@ -135,8 +136,8 @@ fun ProfileIcon(userImageUrl: String?, selected: Boolean) {
                 .size(size)
                 .clip(CircleShape)
                 .then(
-                    if (selected) Modifier.border(2.dp, Color.White, CircleShape)
-                    else Modifier.border(1.dp, Color.White.copy(alpha = 0.3f), CircleShape)
+                    if (selected) Modifier.border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                    else Modifier.border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f), CircleShape)
                 )
         )
     } else {
@@ -145,12 +146,12 @@ fun ProfileIcon(userImageUrl: String?, selected: Boolean) {
                 .size(size)
                 .clip(CircleShape)
                 .background(
-                    if (selected) Color.White.copy(alpha = 0.2f)
-                    else Color.White.copy(alpha = 0.08f)
+                    if (selected) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
                 )
                 .then(
-                    if (selected) Modifier.border(2.dp, Color.White, CircleShape)
-                    else Modifier.border(1.dp, Color.White.copy(alpha = 0.3f), CircleShape)
+                    if (selected) Modifier.border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                    else Modifier.border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f), CircleShape)
                 ),
             contentAlignment = Alignment.Center
         ) {

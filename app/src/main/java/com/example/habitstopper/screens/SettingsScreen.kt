@@ -1,7 +1,5 @@
 package com.example.habitstopper.screens
 
-import android.content.Intent
-import androidx.core.net.toUri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,7 +18,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,10 +27,9 @@ import com.example.habitstopper.UserViewModel
 
 @Composable
 fun SettingsScreen(navController: NavController) {
-    val context = LocalContext.current
     val userViewModel: UserViewModel = viewModel()
+    val userProfile = userViewModel.userProfile
 
-    var darkMode by remember { mutableStateOf(false) }
     var notificationsEnabled by remember { mutableStateOf(true) }
     var selectedLanguage by remember { mutableStateOf("English") }
     var showLanguageDialog by remember { mutableStateOf(false) }
@@ -43,10 +39,19 @@ fun SettingsScreen(navController: NavController) {
 
     val appVersion = "1.0.0"
 
+    LaunchedEffect(Unit) {
+        userViewModel.loadUserProfile()
+    }
+
+    // initialize from saved preference
+    var darkMode by remember(userProfile?.darkMode) {
+        mutableStateOf(userProfile?.darkMode ?: false)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F4F0))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -59,7 +64,7 @@ fun SettingsScreen(navController: NavController) {
                         .fillMaxWidth()
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(Color(0xFF1A1A2E), Color(0xFF16213E))
+                                colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))
                             )
                         )
                         .padding(horizontal = 24.dp)
@@ -70,14 +75,14 @@ fun SettingsScreen(navController: NavController) {
                             text = "Settings",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             letterSpacing = (-0.5).sp
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
                             text = "Customize your experience",
                             fontSize = 14.sp,
-                            color = Color.White.copy(alpha = 0.45f)
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
                         )
                     }
                 }
@@ -97,7 +102,10 @@ fun SettingsScreen(navController: NavController) {
                         title = "Dark Mode",
                         subtitle = "Switch to dark theme",
                         checked = darkMode,
-                        onCheckedChange = { darkMode = it }
+                        onCheckedChange = {
+                            darkMode = it
+                            userViewModel.updateDarkMode(it)
+                        }
                     )
 
                     SettingsDivider()
@@ -214,8 +222,8 @@ fun SettingsScreen(navController: NavController) {
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFFF4757).copy(alpha = 0.08f))
-                        .border(1.dp, Color(0xFFFF4757).copy(alpha = 0.25f), RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.08f))
+                        .border(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.25f), RoundedCornerShape(16.dp))
                         .clickable { showDeleteDialog = true }
                         .padding(horizontal = 20.dp, vertical = 18.dp)
                 ) {
@@ -227,13 +235,13 @@ fun SettingsScreen(navController: NavController) {
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFFFF4757).copy(alpha = 0.15f)),
+                                .background(MaterialTheme.colorScheme.error.copy(alpha = 0.15f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.DeleteForever,
                                 contentDescription = null,
-                                tint = Color(0xFFFF4757),
+                                tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -242,12 +250,12 @@ fun SettingsScreen(navController: NavController) {
                                 text = "Delete Account",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp,
-                                color = Color(0xFFFF4757)
+                                color = MaterialTheme.colorScheme.error
                             )
                             Text(
                                 text = "Permanently delete your account and data",
                                 fontSize = 12.sp,
-                                color = Color(0xFFFF4757).copy(alpha = 0.6f)
+                                color = MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
                             )
                         }
                     }
@@ -261,10 +269,10 @@ fun SettingsScreen(navController: NavController) {
     if (showLanguageDialog) {
         AlertDialog(
             onDismissRequest = { showLanguageDialog = false },
-            containerColor = Color(0xFF1A1A2E),
+            containerColor = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(24.dp),
             title = {
-                Text("Select Language", color = Color.White, fontWeight = FontWeight.ExtraBold)
+                Text("Select Language", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.ExtraBold)
             },
             text = {
                 Column {
@@ -283,7 +291,7 @@ fun SettingsScreen(navController: NavController) {
                         ) {
                             Text(
                                 text = language,
-                                color = if (selectedLanguage == language) Color(0xFF00D4AA) else Color.White,
+                                color = if (selectedLanguage == language) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
                                 fontWeight = if (selectedLanguage == language) FontWeight.Bold else FontWeight.Normal,
                                 fontSize = 15.sp
                             )
@@ -291,7 +299,7 @@ fun SettingsScreen(navController: NavController) {
                                 Icon(
                                     imageVector = Icons.Default.Check,
                                     contentDescription = null,
-                                    tint = Color(0xFF00D4AA),
+                                    tint = MaterialTheme.colorScheme.secondary,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -307,15 +315,15 @@ fun SettingsScreen(navController: NavController) {
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            containerColor = Color(0xFF1A1A2E),
+            containerColor = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(24.dp),
             title = {
-                Text("Delete Account", color = Color(0xFFFF4757), fontWeight = FontWeight.ExtraBold)
+                Text("Delete Account", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.ExtraBold)
             },
             text = {
                 Text(
                     "This will permanently delete your account and all your habits. This action cannot be undone.",
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     fontSize = 14.sp,
                     lineHeight = 22.sp
                 )
@@ -324,7 +332,7 @@ fun SettingsScreen(navController: NavController) {
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFFF4757))
+                        .background(MaterialTheme.colorScheme.error)
                         .clickable {
                             showDeleteDialog = false
                             userViewModel.deleteAccount {
@@ -342,11 +350,11 @@ fun SettingsScreen(navController: NavController) {
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color.White.copy(alpha = 0.08f))
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
                         .clickable { showDeleteDialog = false }
                         .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
-                    Text("Cancel", color = Color.White, fontWeight = FontWeight.Medium)
+                    Text("Cancel", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
                 }
             }
         )
@@ -361,7 +369,7 @@ fun SettingsSectionLabel(text: String) {
         text = text,
         fontSize = 11.sp,
         fontWeight = FontWeight.ExtraBold,
-        color = Color(0xFF1A1A2E).copy(alpha = 0.4f),
+        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
         letterSpacing = 2.sp,
         modifier = Modifier.padding(horizontal = 24.dp)
     )
@@ -374,7 +382,7 @@ fun SettingsCard(content: @Composable ColumnScope.() -> Unit) {
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
             .clip(RoundedCornerShape(20.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         content()
     }
@@ -384,7 +392,7 @@ fun SettingsCard(content: @Composable ColumnScope.() -> Unit) {
 fun SettingsDivider() {
     HorizontalDivider(
         modifier = Modifier.padding(horizontal = 20.dp),
-        color = Color(0xFF1A1A2E).copy(alpha = 0.06f)
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)
     )
 }
 
@@ -414,17 +422,17 @@ fun SettingsToggleRow(
             Icon(imageVector = icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
         }
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Color(0xFF1A1A2E))
-            Text(subtitle, fontSize = 12.sp, color = Color.Gray)
+            Text(title, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text(subtitle, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
         }
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = Color.White,
-                checkedTrackColor = Color(0xFF6C63FF),
-                uncheckedThumbColor = Color.White,
-                uncheckedTrackColor = Color.LightGray
+                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
+                uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
             )
         )
     }
@@ -456,13 +464,13 @@ fun SettingsClickRow(
             Icon(imageVector = icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
         }
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Color(0xFF1A1A2E))
-            Text(subtitle, fontSize = 12.sp, color = Color.Gray)
+            Text(title, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text(subtitle, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
         }
         Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = null,
-            tint = Color.LightGray,
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
             modifier = Modifier.size(20.dp)
         )
     }

@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,7 +23,7 @@ fun TermsScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F4F0))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -34,7 +33,7 @@ fun TermsScreen(navController: NavController) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Brush.verticalGradient(colors = listOf(Color(0xFF1A1A2E), Color(0xFF16213E))))
+                        .background(Brush.verticalGradient(colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))))
                         .padding(horizontal = 24.dp)
                         .padding(top = 48.dp, bottom = 32.dp)
                 ) {
@@ -43,16 +42,16 @@ fun TermsScreen(navController: NavController) {
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.1f))
+                                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
                                 .clickable { navController.popBackStack() },
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White, modifier = Modifier.size(18.dp))
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(18.dp))
                         }
                         Spacer(Modifier.height(16.dp))
-                        Text("Terms of Service", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, letterSpacing = (-0.5).sp)
+                        Text("Terms of Service", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface, letterSpacing = (-0.5).sp)
                         Spacer(Modifier.height(4.dp))
-                        Text("Last updated: March 2025", fontSize = 14.sp, color = Color.White.copy(alpha = 0.45f))
+                        Text("Last updated: March 2025", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f))
                     }
                 }
             }
@@ -77,8 +76,8 @@ fun TermsScreen(navController: NavController) {
 @Composable
 fun TermsSection(title: String, content: String) {
     Column(modifier = Modifier.padding(bottom = 20.dp)) {
-        Text(title, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, color = Color(0xFF1A1A2E))
+        Text(title, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground)
         Spacer(Modifier.height(6.dp))
-        Text(content, fontSize = 13.sp, color = Color.Gray, lineHeight = 22.sp)
+        Text(content, fontSize = 13.sp, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f), lineHeight = 22.sp)
     }
 }

@@ -22,7 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.example.habitstopper.Habit
 import com.example.habitstopper.HabitViewModel
 import com.example.habitstopper.UserViewModel
@@ -31,7 +30,7 @@ import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen() {
     var showAddHabitSheet by remember { mutableStateOf(false) }
     val userViewModel: UserViewModel = viewModel()
     val habitViewModel: HabitViewModel = viewModel()
@@ -44,7 +43,6 @@ fun HomeScreen(navController: NavController) {
     val userProfile = userViewModel.userProfile
     val habits = habitViewModel.habits
     val isLoading = habitViewModel.isLoading
-    val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
 
     val today = LocalDate.now()
     val dayName = today.format(DateTimeFormatter.ofPattern("EEEE"))
@@ -61,7 +59,7 @@ fun HomeScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F4F0))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -74,7 +72,7 @@ fun HomeScreen(navController: NavController) {
                         .fillMaxWidth()
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(Color(0xFF1A1A2E), Color(0xFF16213E))
+                                colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))
                             )
                         )
                         .padding(horizontal = 24.dp, vertical = 36.dp)
@@ -82,7 +80,7 @@ fun HomeScreen(navController: NavController) {
                     Column {
                         Text(
                             text = if (userProfile != null) "Hey, ${userProfile.displayName} 👋" else "Hey there 👋",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 28.sp,
                             fontWeight = FontWeight.ExtraBold,
                             letterSpacing = (-0.5).sp
@@ -90,7 +88,7 @@ fun HomeScreen(navController: NavController) {
                         Spacer(Modifier.height(4.dp))
                         Text(
                             text = "$dayName, ${dayNumber}${getDaySuffix(dayNumber)} $year",
-                            color = Color.White.copy(alpha = 0.6f),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -116,14 +114,14 @@ fun HomeScreen(navController: NavController) {
                         text = "Today's Habits",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1A1A2E)
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(14.dp))
                             .background(
                                 Brush.horizontalGradient(
-                                    colors = listOf(Color(0xFF6C63FF), Color(0xFF00D4AA))
+                                    colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
                                 )
                             )
                             .clickable { showAddHabitSheet = true }
@@ -142,7 +140,7 @@ fun HomeScreen(navController: NavController) {
             if (isLoading) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Color(0xFF6C63FF))
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
@@ -156,8 +154,8 @@ fun HomeScreen(navController: NavController) {
                     ) {
                         Text("🎯", fontSize = 48.sp)
                         Spacer(Modifier.height(12.dp))
-                        Text("No habits yet", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF1A1A2E))
-                        Text("Add your first habit to break!", color = Color.Gray, fontSize = 14.sp)
+                        Text("No habits yet", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground)
+                        Text("Add your first habit to break!", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 14.sp)
                     }
                 }
             }
@@ -255,7 +253,7 @@ fun HabitCard(
                     colors = CheckboxDefaults.colors(
                         checkedColor = Color.White,
                         uncheckedColor = Color.White.copy(alpha = 0.6f),
-                        checkmarkColor = Color(0xFF1A1A2E)
+                        checkmarkColor = MaterialTheme.colorScheme.surface
                     )
                 )
             }

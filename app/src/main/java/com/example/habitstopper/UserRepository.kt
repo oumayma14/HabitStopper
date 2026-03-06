@@ -4,7 +4,6 @@ import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 
 class UserRepository {
@@ -76,5 +75,11 @@ class UserRepository {
                 "unlockedBadges" to mergedBadges
             )
         ).await()
+    }
+
+    suspend fun updateDarkMode(enabled: Boolean) {
+        val uid = auth.currentUser?.uid ?: return
+        db.collection("users").document(uid)
+            .update("darkMode", enabled).await()
     }
 }

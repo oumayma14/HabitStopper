@@ -80,7 +80,7 @@ fun ProfileScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F4F0))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -93,7 +93,7 @@ fun ProfileScreen(navController: NavController) {
                         .fillMaxWidth()
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(Color(0xFF1A1A2E), Color(0xFF16213E))
+                                colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))
                             )
                         )
                         .padding(horizontal = 24.dp)
@@ -145,7 +145,7 @@ fun ProfileScreen(navController: NavController) {
                                     text = userProfile?.displayName?.take(1)?.uppercase() ?: "?",
                                     fontSize = 36.sp,
                                     fontWeight = FontWeight.ExtraBold,
-                                    color = Color.White
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }
@@ -156,7 +156,7 @@ fun ProfileScreen(navController: NavController) {
                             text = userProfile?.displayName ?: "Loading...",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onSurface
                         )
 
                         Spacer(Modifier.height(4.dp))
@@ -164,7 +164,7 @@ fun ProfileScreen(navController: NavController) {
                         Text(
                             text = "Member since $joinDate",
                             fontSize = 13.sp,
-                            color = Color.White.copy(alpha = 0.5f)
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         )
 
                         Spacer(Modifier.height(12.dp))
@@ -172,14 +172,14 @@ fun ProfileScreen(navController: NavController) {
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(20.dp))
-                                .background(Color.White.copy(alpha = 0.1f))
+                                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
                                 .clickable { showEditSheet = true }
                                 .padding(horizontal = 16.dp, vertical = 6.dp)
                         ) {
                             Text(
                                 text = "✏️ Edit Profile",
                                 fontSize = 12.sp,
-                                color = Color.White.copy(alpha = 0.7f),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -212,7 +212,7 @@ fun ProfileScreen(navController: NavController) {
                         text = "STREAK BADGES",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF1A1A2E).copy(alpha = 0.4f),
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
                         letterSpacing = 2.sp
                     )
 
@@ -230,8 +230,8 @@ fun ProfileScreen(navController: NavController) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Next: ${nextBadge.emoji} ${nextBadge.name}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A2E))
-                            Text("$bestStreakEver / ${nextBadge.requiredStreak} days", fontSize = 12.sp, color = Color.Gray)
+                            Text("Next: ${nextBadge.emoji} ${nextBadge.name}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+                            Text("$bestStreakEver / ${nextBadge.requiredStreak} days", fontSize = 12.sp, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f))
                         }
 
                         Spacer(Modifier.height(6.dp))
@@ -241,7 +241,7 @@ fun ProfileScreen(navController: NavController) {
                                 .fillMaxWidth()
                                 .height(8.dp)
                                 .clip(RoundedCornerShape(4.dp))
-                                .background(Color(0xFFE0E0E0))
+                                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f))
                         ) {
                             Box(
                                 modifier = Modifier
@@ -272,10 +272,10 @@ fun ProfileScreen(navController: NavController) {
             item {
                 Spacer(Modifier.height(24.dp))
                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
-                    Text("MY HABITS", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1A2E).copy(alpha = 0.4f), letterSpacing = 2.sp)
+                    Text("MY HABITS", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f), letterSpacing = 2.sp)
                     Spacer(Modifier.height(12.dp))
                     if (habits.isEmpty()) {
-                        Text("No habits yet — go add some!", color = Color.Gray, fontSize = 14.sp)
+                        Text("No habits yet — go add some!", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 14.sp)
                     }
                     habits.forEach { habit ->
                         val cardColor = remember(habit.colorHex) {
@@ -292,8 +292,8 @@ fun ProfileScreen(navController: NavController) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("${habit.iconName} ${habit.name}", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
-                            Text("🔥 ${habit.streak}", fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, color = Color.White)
+                            Text("${habit.iconName} ${habit.name}", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                            Text("🔥 ${habit.streak}", fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                 }
@@ -308,8 +308,8 @@ fun ProfileScreen(navController: NavController) {
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFFF4757).copy(alpha = 0.12f))
-                        .border(1.dp, Color(0xFFFF4757).copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.12f))
+                        .border(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
                         .clickable {
                             auth.signOut()
                             navController.navigate("login") { popUpTo(0) { inclusive = true } }
@@ -317,7 +317,7 @@ fun ProfileScreen(navController: NavController) {
                         .padding(vertical = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Sign Out", color = Color(0xFFFF4757), fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    Text("Sign Out", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 }
                 Spacer(Modifier.height(24.dp))
             }
@@ -378,7 +378,7 @@ fun EditProfileSheet(
             userViewModel.clearMessage()
             onDismiss()
         },
-        containerColor = Color(0xFF1A1A2E),
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
         dragHandle = {}
     ) {
@@ -400,9 +400,7 @@ fun EditProfileSheet(
             )
 
             Spacer(Modifier.height(20.dp))
-
-            Text("Edit Profile", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
-
+            Text("Edit Profile", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(Modifier.height(24.dp))
 
             // SUCCESS
@@ -411,11 +409,11 @@ fun EditProfileSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF00D4AA).copy(alpha = 0.15f))
-                        .border(1.dp, Color(0xFF00D4AA).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f))
+                        .border(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
                         .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
-                    Text("✅ $successMessage", color = Color(0xFF00D4AA), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Text("✅ $successMessage", color = MaterialTheme.colorScheme.secondary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 }
                 Spacer(Modifier.height(16.dp))
             }
@@ -426,11 +424,11 @@ fun EditProfileSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFFF4757).copy(alpha = 0.15f))
-                        .border(1.dp, Color(0xFFFF4757).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.15f))
+                        .border(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
                         .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
-                    Text("⚠️ ${errorText ?: errorMessage}", color = Color(0xFFFF6B6B), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Text("⚠️ ${errorText ?: errorMessage}", color = MaterialTheme.colorScheme.error, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 }
                 Spacer(Modifier.height(16.dp))
             }
@@ -452,7 +450,7 @@ fun EditProfileSheet(
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Text("Update Name", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text("Update Name", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
 
             Spacer(Modifier.height(28.dp))
@@ -467,7 +465,7 @@ fun EditProfileSheet(
                     text = "PROFILE PHOTO URL",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = Color.White.copy(alpha = 0.35f),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
                     letterSpacing = 2.sp
                 )
                 Spacer(Modifier.width(8.dp))
@@ -475,11 +473,11 @@ fun EditProfileSheet(
                     modifier = Modifier
                         .size(18.dp)
                         .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.15f))
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f))
                         .clickable { showPhotoTip = !showPhotoTip },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("?", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+                    Text("?", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
                 }
             }
             if (showPhotoTip) {
@@ -488,14 +486,14 @@ fun EditProfileSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF6C63FF).copy(alpha = 0.15f))
-                        .border(1.dp, Color(0xFF6C63FF).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
+                        .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
                         .padding(horizontal = 14.dp, vertical = 10.dp)
                 ) {
                     Text(
                         text = "1. Go to imgur.com\n2. Upload your photo\n3. Right-click the image → Copy image address\n4. Paste the link here and tap Update Photo",
                         fontSize = 12.sp,
-                        color = Color.White.copy(alpha = 0.75f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
                         lineHeight = 20.sp
                     )
                 }
@@ -527,7 +525,7 @@ fun EditProfileSheet(
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Text("Update Photo", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text("Update Photo", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
             Spacer(Modifier.height(28.dp))
 
@@ -553,7 +551,7 @@ fun EditProfileSheet(
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Text("Update Password", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text("Update Password", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
     }
@@ -570,8 +568,8 @@ fun ProfileStatCard(emoji: String, value: String, label: String, gradient: List<
     ) {
         Text(emoji, fontSize = 22.sp)
         Spacer(Modifier.height(6.dp))
-        Text(value, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
-        Text(label, fontSize = 11.sp, color = Color.White.copy(alpha = 0.75f), textAlign = TextAlign.Center)
+        Text(value, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
+        Text(label, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f), textAlign = TextAlign.Center)
     }
 }
 
@@ -595,7 +593,7 @@ fun BadgeItem(badge: Badge, unlocked: Boolean, modifier: Modifier = Modifier) {
             .clip(RoundedCornerShape(14.dp))
             .background(
                 if (unlocked) Brush.linearGradient(colors = badge.gradient)
-                else Brush.linearGradient(colors = listOf(Color(0xFFDDDDDD), Color(0xFFCCCCCC)))
+                else Brush.linearGradient(colors = listOf(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.18f), MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)))
             )
             .then(
                 if (unlocked) Modifier.border(2.dp, Brush.linearGradient(colors = badge.gradient.map { it.copy(alpha = glowAlpha) }), RoundedCornerShape(14.dp))
@@ -606,7 +604,7 @@ fun BadgeItem(badge: Badge, unlocked: Boolean, modifier: Modifier = Modifier) {
     ) {
         Text(if (unlocked) badge.emoji else "🔒", fontSize = 22.sp)
         Spacer(Modifier.height(4.dp))
-        Text(badge.name, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = if (unlocked) Color.White else Color.Gray, textAlign = TextAlign.Center, maxLines = 1)
-        Text("${badge.requiredStreak}d", fontSize = 9.sp, color = if (unlocked) Color.White.copy(alpha = 0.7f) else Color.Gray.copy(alpha = 0.6f), textAlign = TextAlign.Center)
+        Text(badge.name, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = if (unlocked) Color.White else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), textAlign = TextAlign.Center, maxLines = 1)
+        Text("${badge.requiredStreak}d", fontSize = 9.sp, color = if (unlocked) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f), textAlign = TextAlign.Center)
     }
 }

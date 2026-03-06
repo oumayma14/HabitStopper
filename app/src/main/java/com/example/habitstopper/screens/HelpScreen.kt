@@ -42,7 +42,7 @@ fun HelpScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F4F0))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -55,7 +55,7 @@ fun HelpScreen(navController: NavController) {
                         .fillMaxWidth()
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(Color(0xFF1A1A2E), Color(0xFF16213E))
+                                colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))
                             )
                         )
                         .padding(horizontal = 24.dp)
@@ -66,21 +66,21 @@ fun HelpScreen(navController: NavController) {
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.1f))
+                                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
                                 .clickable { navController.popBackStack() },
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
-                                tint = Color.White,
+                                tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
                         Spacer(Modifier.height(16.dp))
-                        Text("Help Center", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = Color.White, letterSpacing = (-0.5).sp)
+                        Text("Help Center", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface, letterSpacing = (-0.5).sp)
                         Spacer(Modifier.height(4.dp))
-                        Text("Frequently asked questions", fontSize = 14.sp, color = Color.White.copy(alpha = 0.45f))
+                        Text("Frequently asked questions", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f))
                     }
                 }
             }
@@ -97,7 +97,7 @@ fun HelpScreen(navController: NavController) {
                             .padding(horizontal = 24.dp)
                             .padding(bottom = 10.dp)
                             .clip(RoundedCornerShape(16.dp))
-                            .background(Color.White)
+                            .background(MaterialTheme.colorScheme.surface)
                             .clickable {
                                 expandedIndex = if (isExpanded) null else index
                             }
@@ -112,23 +112,23 @@ fun HelpScreen(navController: NavController) {
                                 text = faq.question,
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 14.sp,
-                                color = Color(0xFF1A1A2E),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.weight(1f)
                             )
                             Text(
                                 text = if (isExpanded) "▲" else "▼",
                                 fontSize = 12.sp,
-                                color = Color(0xFF6C63FF)
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                         if (isExpanded) {
                             Spacer(Modifier.height(10.dp))
-                            HorizontalDivider(color = Color(0xFF1A1A2E).copy(alpha = 0.06f))
+                            HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
                             Spacer(Modifier.height(10.dp))
                             Text(
                                 text = faq.answer,
                                 fontSize = 13.sp,
-                                color = Color.Gray,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                                 lineHeight = 20.sp
                             )
                         }

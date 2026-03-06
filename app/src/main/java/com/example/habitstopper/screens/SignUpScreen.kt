@@ -79,7 +79,7 @@ fun SignUpScreen(navController: NavController) {
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFF1A1A2E), Color(0xFF16213E))
+                    colors = listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.surface)
                 )
             )
     ) {
@@ -108,14 +108,14 @@ fun SignUpScreen(navController: NavController) {
                 text = "Join Quitly 🚀",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 letterSpacing = (-0.5).sp
             )
             Spacer(Modifier.height(6.dp))
             Text(
                 text = "Start breaking bad habits today",
                 fontSize = 14.sp,
-                color = Color.White.copy(alpha = 0.45f)
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f)
             )
 
             Spacer(Modifier.height(36.dp))
@@ -126,11 +126,11 @@ fun SignUpScreen(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFFF4757).copy(alpha = 0.15f))
-                        .border(1.dp, Color(0xFFFF4757).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.15f))
+                        .border(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
                         .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
-                    Text("⚠️ $errorText", color = Color(0xFFFF6B6B), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Text("⚠️ $errorText", color = MaterialTheme.colorScheme.error, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 }
                 Spacer(Modifier.height(16.dp))
             }
@@ -139,11 +139,11 @@ fun SignUpScreen(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFFF4757).copy(alpha = 0.15f))
-                        .border(1.dp, Color(0xFFFF4757).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.15f))
+                        .border(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
                         .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
-                    Text("⚠️ $it", color = Color(0xFFFF6B6B), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Text("⚠️ $it", color = MaterialTheme.colorScheme.error, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 }
                 Spacer(Modifier.height(16.dp))
             }
@@ -213,9 +213,9 @@ fun SignUpScreen(navController: NavController) {
 
             // OR DIVIDER
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Color.White.copy(alpha = 0.1f))
-                Text("  Or continue with  ", color = Color.White.copy(alpha = 0.35f), fontSize = 12.sp)
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Color.White.copy(alpha = 0.1f))
+                HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f))
+                Text("  Or continue with  ", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.35f), fontSize = 12.sp)
+                HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f))
             }
 
             Spacer(Modifier.height(24.dp))
@@ -226,8 +226,8 @@ fun SignUpScreen(navController: NavController) {
                     .fillMaxWidth()
                     .height(54.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White.copy(alpha = 0.06f))
-                    .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f), RoundedCornerShape(16.dp))
                     .clickable(enabled = !isLoading) {
                         launcher.launch(googleAuthClient.getSignInIntent())
                     },
@@ -236,7 +236,7 @@ fun SignUpScreen(navController: NavController) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     Image(painter = painterResource(id = R.drawable.google), contentDescription = "Google", modifier = Modifier.size(22.dp))
                     Spacer(Modifier.width(12.dp))
-                    Text("Continue with Google", color = Color.White, fontWeight = FontWeight.Medium, fontSize = 15.sp)
+                    Text("Continue with Google", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium, fontSize = 15.sp)
                 }
             }
 
@@ -244,10 +244,10 @@ fun SignUpScreen(navController: NavController) {
 
             // LOGIN LINK
             Row {
-                Text("Already have an account? ", color = Color.White.copy(alpha = 0.45f), fontSize = 14.sp)
+                Text("Already have an account? ", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f), fontSize = 14.sp)
                 Text(
                     text = "Log in",
-                    color = Color(0xFF00D4AA),
+                    color = MaterialTheme.colorScheme.secondary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.ExtraBold,
                     modifier = Modifier.clickable { navController.navigate("login") }

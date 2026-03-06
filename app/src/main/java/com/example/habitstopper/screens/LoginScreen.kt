@@ -83,7 +83,7 @@ fun LoginScreen(navController: NavController) {
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFF1A1A2E), Color(0xFF16213E))
+                    colors = listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.surface)
                 )
             )
     ) {
@@ -113,14 +113,14 @@ fun LoginScreen(navController: NavController) {
                 text = "Welcome back 👋",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 letterSpacing = (-0.5).sp
             )
             Spacer(Modifier.height(6.dp))
             Text(
                 text = "Sign in to continue your streak",
                 fontSize = 14.sp,
-                color = Color.White.copy(alpha = 0.45f)
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f)
             )
 
             Spacer(Modifier.height(40.dp))
@@ -131,11 +131,11 @@ fun LoginScreen(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFFF4757).copy(alpha = 0.15f))
-                        .border(1.dp, Color(0xFFFF4757).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.15f))
+                        .border(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
                         .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
-                    Text("⚠️ $errorText", color = Color(0xFFFF6B6B), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Text("⚠️ $errorText", color = MaterialTheme.colorScheme.error, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 }
                 Spacer(Modifier.height(16.dp))
             }
@@ -144,11 +144,11 @@ fun LoginScreen(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFFF4757).copy(alpha = 0.15f))
-                        .border(1.dp, Color(0xFFFF4757).copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.15f))
+                        .border(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
                         .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
-                    Text("⚠️ $it", color = Color(0xFFFF6B6B), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Text("⚠️ $it", color = MaterialTheme.colorScheme.error, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 }
                 Spacer(Modifier.height(16.dp))
             }
@@ -175,7 +175,7 @@ fun LoginScreen(navController: NavController) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "Forgot password?",
-                    color = Color(0xFF6C63FF),
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier
@@ -210,7 +210,7 @@ fun LoginScreen(navController: NavController) {
                 if (isLoading) {
                     CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(22.dp), color = Color.White)
                 } else {
-                    Text("Log In", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp)
+                    Text("Log In", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp)
                 }
             }
 
@@ -218,9 +218,9 @@ fun LoginScreen(navController: NavController) {
 
             // OR DIVIDER
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Color.White.copy(alpha = 0.1f))
-                Text("  Or continue with  ", color = Color.White.copy(alpha = 0.35f), fontSize = 12.sp)
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Color.White.copy(alpha = 0.1f))
+                HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f))
+                Text("  Or continue with  ", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.35f), fontSize = 12.sp)
+                HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f))
             }
 
             Spacer(Modifier.height(24.dp))
@@ -231,8 +231,8 @@ fun LoginScreen(navController: NavController) {
                     .fillMaxWidth()
                     .height(54.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White.copy(alpha = 0.06f))
-                    .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f), RoundedCornerShape(16.dp))
                     .clickable(enabled = !isLoading) {
                         launcher.launch(googleAuthClient.getSignInIntent())
                     },
@@ -241,7 +241,7 @@ fun LoginScreen(navController: NavController) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     Image(painter = painterResource(id = R.drawable.google), contentDescription = "Google", modifier = Modifier.size(22.dp))
                     Spacer(Modifier.width(12.dp))
-                    Text("Sign in with Google", color = Color.White, fontWeight = FontWeight.Medium, fontSize = 15.sp)
+                    Text("Sign in with Google", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium, fontSize = 15.sp)
                 }
             }
 
@@ -249,10 +249,10 @@ fun LoginScreen(navController: NavController) {
 
             // SIGN UP LINK
             Row {
-                Text("New to Quitly? ", color = Color.White.copy(alpha = 0.45f), fontSize = 14.sp)
+                Text("New to Quitly? ", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f), fontSize = 14.sp)
                 Text(
                     text = "Create an account",
-                    color = Color(0xFF00D4AA),
+                    color = MaterialTheme.colorScheme.secondary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.ExtraBold,
                     modifier = Modifier.clickable { navController.navigate("signup") }
@@ -277,15 +277,15 @@ fun AuthTextField(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(Color.White.copy(alpha = 0.07f))
-            .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f), RoundedCornerShape(14.dp))
             .padding(horizontal = 16.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextField(
             value = value,
             onValueChange = onValueChange,
-            placeholder = { Text(placeholder, color = Color.White.copy(alpha = 0.25f), fontSize = 14.sp) },
+            placeholder = { Text(placeholder, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f), fontSize = 14.sp) },
             singleLine = true,
             visualTransformation = if (isPassword && !showPassword) PasswordVisualTransformation() else VisualTransformation.None,
             colors = TextFieldDefaults.colors(
@@ -293,9 +293,9 @@ fun AuthTextField(
                 unfocusedContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                cursorColor = Color(0xFF6C63FF)
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                cursorColor = MaterialTheme.colorScheme.primary
             ),
             modifier = Modifier.weight(1f),
             trailingIcon = {
@@ -304,7 +304,7 @@ fun AuthTextField(
                         Icon(
                             imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                             contentDescription = null,
-                            tint = Color.White.copy(alpha = 0.4f)
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                         )
                     }
                 }

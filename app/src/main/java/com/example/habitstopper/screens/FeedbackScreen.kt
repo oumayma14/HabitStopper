@@ -32,7 +32,7 @@ fun FeedbackScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F4F0))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -85,7 +85,7 @@ fun FeedbackScreen(navController: NavController) {
                     Spacer(Modifier.height(40.dp))
                     Text("🎉", fontSize = 56.sp)
                     Spacer(Modifier.height(16.dp))
-                    Text("Thanks for your feedback!", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1A2E))
+                    Text("Thanks for your feedback!", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onBackground)
                     Spacer(Modifier.height(8.dp))
                     Text("We'll review it and get back to you if needed.", fontSize = 14.sp, color = Color.Gray, lineHeight = 22.sp)
                     Spacer(Modifier.height(32.dp))
@@ -104,7 +104,7 @@ fun FeedbackScreen(navController: NavController) {
                     Spacer(Modifier.height(8.dp))
 
                     // FEEDBACK TYPE
-                    Text("FEEDBACK TYPE", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1A2E).copy(alpha = 0.4f), letterSpacing = 2.sp)
+                    Text("FEEDBACK TYPE", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f), letterSpacing = 2.sp)
                     Spacer(Modifier.height(10.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         feedbackTypes.take(2).forEach { type ->
@@ -115,7 +115,7 @@ fun FeedbackScreen(navController: NavController) {
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(
                                         if (selected) Brush.horizontalGradient(colors = listOf(Color(0xFF6C63FF), Color(0xFFA855F7)))
-                                        else Brush.horizontalGradient(colors = listOf(Color.White, Color.White))
+                                        else Brush.horizontalGradient(colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surface))
                                     )
                                     .clickable { selectedType = type }
                                     .padding(vertical = 12.dp),
@@ -135,7 +135,7 @@ fun FeedbackScreen(navController: NavController) {
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(
                                         if (selected) Brush.horizontalGradient(colors = listOf(Color(0xFF6C63FF), Color(0xFFA855F7)))
-                                        else Brush.horizontalGradient(colors = listOf(Color.White, Color.White))
+                                        else Brush.horizontalGradient(colors = listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surface))
                                     )
                                     .clickable { selectedType = type }
                                     .padding(vertical = 12.dp),
@@ -149,7 +149,7 @@ fun FeedbackScreen(navController: NavController) {
                     Spacer(Modifier.height(24.dp))
 
                     // MESSAGE
-                    Text("MESSAGE", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1A2E).copy(alpha = 0.4f), letterSpacing = 2.sp)
+                    Text("MESSAGE", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f), letterSpacing = 2.sp)
                     Spacer(Modifier.height(10.dp))
                     TextField(
                         value = message,
@@ -160,12 +160,12 @@ fun FeedbackScreen(navController: NavController) {
                             .height(160.dp)
                             .clip(RoundedCornerShape(16.dp)),
                         colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
-                            focusedTextColor = Color(0xFF1A1A2E),
-                            unfocusedTextColor = Color(0xFF1A1A2E),
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                             cursorColor = Color(0xFF6C63FF)
                         )
                     )

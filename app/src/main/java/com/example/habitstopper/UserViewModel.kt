@@ -105,4 +105,16 @@ class UserViewModel(
         }
     }
 
+    fun updateDarkMode(enabled: Boolean) {
+        viewModelScope.launch {
+            try {
+                repository.updateDarkMode(enabled)
+                userProfile = userProfile?.copy(darkMode = enabled)
+                loadUserProfile()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
 }
