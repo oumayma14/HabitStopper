@@ -26,8 +26,7 @@ import androidx.navigation.NavController
 import com.example.habitstopper.UserViewModel
 
 @Composable
-fun SettingsScreen(navController: NavController) {
-    val userViewModel: UserViewModel = viewModel()
+fun SettingsScreen(navController: NavController, userViewModel: UserViewModel) {
     val userProfile = userViewModel.userProfile
 
     var notificationsEnabled by remember { mutableStateOf(true) }
@@ -43,10 +42,6 @@ fun SettingsScreen(navController: NavController) {
         userViewModel.loadUserProfile()
     }
 
-    // initialize from saved preference
-    var darkMode by remember(userProfile?.darkMode) {
-        mutableStateOf(userProfile?.darkMode ?: false)
-    }
 
     Box(
         modifier = Modifier
@@ -101,12 +96,10 @@ fun SettingsScreen(navController: NavController) {
                         iconGradient = listOf(Color(0xFF6C63FF), Color(0xFFA855F7)),
                         title = "Dark Mode",
                         subtitle = "Switch to dark theme",
-                        checked = darkMode,
+                        checked = userViewModel.isDarkMode,
                         onCheckedChange = {
-                            darkMode = it
                             userViewModel.updateDarkMode(it)
-                        }
-                    )
+                        }                    )
 
                     SettingsDivider()
 

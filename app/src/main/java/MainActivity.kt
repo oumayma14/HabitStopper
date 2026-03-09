@@ -49,13 +49,9 @@ fun MainScreen() {
     val currentRoute = navBackStackEntry?.destination?.route
     val userViewModel: UserViewModel = viewModel()
 
-    // load user profile to get dark mode preference
     LaunchedEffect(Unit) {
         userViewModel.loadUserProfile()
     }
-
-    val userProfile = userViewModel.userProfile
-    val isDarkMode = userProfile?.darkMode ?: false
 
     val showBottomBar = currentRoute in listOf(
         BottomNavItem.Home.route,
@@ -63,6 +59,9 @@ fun MainScreen() {
         BottomNavItem.Settings.route,
         BottomNavItem.Habits.route
     )
+
+    // Directly read the mutableState from ViewModel
+    val isDarkMode = userViewModel.isDarkMode
 
     HabitStopperTheme(darkTheme = isDarkMode) {
         Scaffold(
@@ -80,8 +79,8 @@ fun MainScreen() {
             ) {
                 composable("login") { LoginScreen(navController) }
                 composable("signup") { SignUpScreen(navController) }
-                composable(BottomNavItem.Home.route) { HomeScreen()}
-                composable(BottomNavItem.Settings.route) { SettingsScreen(navController) }
+                composable(BottomNavItem.Home.route) { HomeScreen() }
+                composable(BottomNavItem.Settings.route) { SettingsScreen(navController, userViewModel) }
                 composable(BottomNavItem.Profile.route) { ProfileScreen(navController) }
                 composable("help") { HelpScreen(navController) }
                 composable("feedback") { FeedbackScreen(navController) }

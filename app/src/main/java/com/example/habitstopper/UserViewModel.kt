@@ -21,12 +21,15 @@ class UserViewModel(
 
     var updateError by mutableStateOf<String?>(null)
         private set
+
+    var isDarkMode by mutableStateOf(false)
+
     fun loadUserProfile(){
         viewModelScope.launch{
             try{
-
                 isLoading = true
                 userProfile = repository.getOrCreateUserProfile()
+                isDarkMode = userProfile?.darkMode ?: false
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -106,11 +109,11 @@ class UserViewModel(
     }
 
     fun updateDarkMode(enabled: Boolean) {
+        isDarkMode = enabled
+        userProfile = userProfile?.copy(darkMode = enabled)
         viewModelScope.launch {
             try {
                 repository.updateDarkMode(enabled)
-                userProfile = userProfile?.copy(darkMode = enabled)
-                loadUserProfile()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
