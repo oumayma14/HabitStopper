@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.habitstopper.NotificationScheduler
 import com.example.habitstopper.UserViewModel
 
 @Composable
@@ -37,6 +38,7 @@ fun SettingsScreen(navController: NavController, userViewModel: UserViewModel) {
     val languages = listOf("English", "French", "Arabic", "Spanish", "German")
 
     val appVersion = "1.0.0"
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     LaunchedEffect(Unit) {
         userViewModel.loadUserProfile()
@@ -110,7 +112,11 @@ fun SettingsScreen(navController: NavController, userViewModel: UserViewModel) {
                         title = "Notifications",
                         subtitle = "Daily habit reminders",
                         checked = notificationsEnabled,
-                        onCheckedChange = { notificationsEnabled = it }
+                        onCheckedChange = {
+                            notificationsEnabled = it
+                            if (it) NotificationScheduler.schedule(context)
+                            else NotificationScheduler.cancel(context)
+                        }
                     )
 
                     SettingsDivider()
@@ -328,6 +334,7 @@ fun SettingsScreen(navController: NavController, userViewModel: UserViewModel) {
                         .background(MaterialTheme.colorScheme.error)
                         .clickable {
                             showDeleteDialog = false
+                            NotificationScheduler.cancel(context)
                             userViewModel.deleteAccount {
                                 navController.navigate("login") {
                                     popUpTo(0) { inclusive = true }

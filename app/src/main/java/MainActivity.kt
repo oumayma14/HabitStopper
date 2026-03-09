@@ -1,5 +1,6 @@
 package com.example.habitstopper
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -23,6 +24,7 @@ import com.example.habitstopper.screens.ProfileScreen
 import com.example.habitstopper.screens.LoginScreen
 import com.example.habitstopper.screens.SignUpScreen
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.habitstopper.StreakNotificationReceiver
 import com.example.habitstopper.screens.HomeScreen
 import com.example.habitstopper.screens.HelpScreen
 import com.example.habitstopper.screens.FeedbackScreen
@@ -34,6 +36,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 0
+            )
+        }
 
         setContent {
             MainScreen()

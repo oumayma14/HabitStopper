@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.habitstopper.HabitViewModel
+import com.example.habitstopper.NotificationScheduler
 import com.example.habitstopper.UserViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -76,6 +78,7 @@ fun ProfileScreen(navController: NavController) {
         Badge("🚀", "Rocket", 75, listOf(Color(0xFFA855F7), Color(0xFF6C63FF))),
         Badge("👑", "Legend", 100, listOf(Color(0xFFFFD700), Color(0xFFFF6B35)))
     )
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -311,6 +314,7 @@ fun ProfileScreen(navController: NavController) {
                         .background(MaterialTheme.colorScheme.error.copy(alpha = 0.12f))
                         .border(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
                         .clickable {
+                            NotificationScheduler.cancel(context)
                             auth.signOut()
                             navController.navigate("login") { popUpTo(0) { inclusive = true } }
                         }
